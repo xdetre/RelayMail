@@ -1,9 +1,11 @@
 fastapi
 uvicorn[standard]
-
+pydantic[email]
+python-jose
 sqlalchemy
 asyncpg
 alembic
-
+passlib
 pydantic
 python-dotenv
+ydantic-settings
