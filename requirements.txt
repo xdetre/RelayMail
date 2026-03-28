@@ -8,4 +8,4 @@ alembic
 passlib
 pydantic
 python-dotenv
-ydantic-settings
+pydantic-settings
