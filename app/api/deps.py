@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.db.session import get_db
-from app.core.config import SECRET_KEY, ALGORITHM
+from app.core.config import settings
 from app.core.rate_limits import is_rate_limited
 from app.models.user import User
 
@@ -20,7 +20,7 @@ async def get_current_user(
     token = credentials.credentials
 
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
 
         user_id = payload.get('user_id')
 

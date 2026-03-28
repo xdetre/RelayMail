@@ -1,7 +1,7 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import jwt
-from app.core.config import SECRET_KEY, ALGORITHM
+from app.core.config import settings
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -24,8 +24,8 @@ def create_access_token(data: dict, expires_minutes: int = 60):
 
     encoded_jwt = jwt.encode(
         to_encode,
-        SECRET_KEY,
-        algorithm=ALGORITHM
+        settings.SECRET_KEY,
+        algorithm=settings.ALGORITHM
     )
 
     return encoded_jwt
