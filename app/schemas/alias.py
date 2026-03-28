@@ -9,7 +9,7 @@ class AliasResponse(BaseModel):
     @computed_field
     @property
     def email(self) -> str:
-        return f"u{self.user_id}.{self.alias}@relaymails.ru"
+        return f"u{self.user_id}.{self.alias}@relaymails.dev"
 
     class Config:
         from_attributes = True
