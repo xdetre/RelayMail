@@ -13,7 +13,7 @@ from app.services.alias_service import enable_alias, disable_alias, delete_alias
 
 from app.api.deps import rate_limit
 
-router = APIRouter()
+router = APIRouter(prefix="/aliases", tags=["aliases"])
 
 @router.post("/aliases", response_model=AliasResponse)
 async def new_alias(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
