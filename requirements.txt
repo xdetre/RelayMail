@@ -9,3 +9,5 @@ passlib
 pydantic
 python-dotenv
 pydantic-settings
+authlib
+httpx
