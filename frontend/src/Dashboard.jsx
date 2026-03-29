@@ -180,7 +180,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
 
   const fetchAliases = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/aliases/`, { headers });
+      const res = await fetch(`${API_URL}/aliases`, { headers });
       if (!res.ok) throw new Error("Failed to load aliases");
       const data = await res.json();
       setAliases(data);
@@ -196,7 +196,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
   const createAlias = async () => {
     setCreating(true);
     try {
-      const res = await fetch(`${API_URL}/aliases/`, { method: "POST", headers });
+      const res = await fetch(`${API_URL}/aliases`, { method: "POST", headers });
       if (!res.ok) throw new Error("Failed to create alias");
       const data = await res.json();
       setAliases(prev => [data, ...prev]);
@@ -210,11 +210,11 @@ export default function Dashboard({ token, onLogout, userEmail }) {
 
   const toggleAlias = async (id, currentState) => {
     try {
-      const res = await fetch(`${API_URL}/aliases/${id}`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ is_active: !currentState }),
-      });
+        const endpoint = currentState ? "disable" : "enable";
+            const res = await fetch(`${API_URL}/aliases/${id}/${endpoint}`, {
+              method: "PATCH",
+              headers,
+            });
       if (!res.ok) throw new Error();
       setAliases(prev => prev.map(a => a.id === id ? { ...a, is_active: !currentState } : a));
     } catch {
@@ -248,7 +248,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
         <nav className="nav">
           <div className="nav-logo">
             <div className="nav-logo-icon">✉</div>
-            RelayMail
+            RelayMails
           </div>
           <div className="nav-right">
             {userEmail && <span className="nav-email">{userEmail}</span>}

@@ -1,5 +1,5 @@
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import Dashboard from "./Dashboard";
 const API_URL = "http://localhost:8001";
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
@@ -300,6 +300,29 @@ const css = `
     margin-right: 8px;
   }
 
+  .btn-google {
+    width: 100%;
+    padding: 13px;
+    background: none;
+    border: 1px solid ${colors.border};
+    border-radius: 8px;
+    color: ${colors.text};
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .btn-google:hover {
+    border-color: ${colors.muted2};
+    background: rgba(255,255,255,0.03);
+  }
+
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .auth-divider {
@@ -391,14 +414,11 @@ function LoginForm({ onSuccess }) {
     if (!email || !password) { setError("Fill in all fields"); return; }
     setLoading(true); setError("");
     try {
-      const form = new URLSearchParams();
-      form.append("username", email);
-      form.append("password", password);
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: form,
-      });
+        const res = await fetch(`${API_URL}/users/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");
       localStorage.setItem("token", data.access_token);
@@ -424,6 +444,19 @@ function LoginForm({ onSuccess }) {
         {loading && <span className="spinner" />}
         {loading ? "Signing in..." : "Sign in"}
       </button>
+
+      <div className="auth-divider">or</div>
+
+      <button className="btn-google" onClick={() => window.location.href = "http://localhost:8001/auth/google"}>
+          <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+
     </>
   );
 }
@@ -438,7 +471,7 @@ function RegisterForm({ onSwitchToLogin }) {
 
   const handleSubmit = async () => {
     if (!email || !password) { setError("Fill in all fields"); return; }
-    if (password.length < 6) { setError("Password must be at least 6 characters"); return; }
+    if (password.length < 8) { setError("Password must be at least 8 characters, include 1 uppercase and 1 special character"); return; }
     setLoading(true); setError("");
     try {
       const res = await fetch(`${API_URL}/users/register`, {
@@ -478,60 +511,45 @@ function RegisterForm({ onSwitchToLogin }) {
       {error && <div className="error-banner">{error}</div>}
 
       <Field label="Your real email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
-      <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Min. 6 characters" />
+      <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Min. 8 chars, 1 uppercase, 1 special" />
 
       <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
         {loading && <span className="spinner" />}
         {loading ? "Creating account..." : "Create account"}
       </button>
+
+      <div className="auth-divider">or</div>
+
+      <button className="btn-google" onClick={() => window.location.href = "http://localhost:8001/auth/google"}>
+          <svg width="18" height="18" viewBox="0 0 18 18">
+          <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+          <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+          <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+          <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 6.293C4.672 4.166 6.656 3.58 9 3.58z"/>
+        </svg>
+        Continue with Google
+      </button>
+
     </>
   );
 }
 
-// ── Dashboard stub ────────────────────────────────────────────────────────────
-function Dashboard({ token, onLogout }) {
-  return (
-    <div style={{
-      minHeight: "100vh",
-      background: colors.bg,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      flexDirection: "column",
-      gap: 16,
-      fontFamily: "'JetBrains Mono', monospace",
-      color: colors.muted,
-      fontSize: 13,
-    }}>
-      <div style={{ color: colors.blue, fontSize: 24, fontFamily: "'Syne', sans-serif", fontWeight: 800 }}>
-        ✓ Logged in
-      </div>
-      <div>Token saved. Dashboard coming next.</div>
-      <button
-        onClick={onLogout}
-        style={{
-          marginTop: 8,
-          padding: "8px 20px",
-          background: "none",
-          border: `1px solid ${colors.border}`,
-          borderRadius: 6,
-          color: colors.muted,
-          cursor: "pointer",
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: 12,
-        }}
-      >
-        Logout
-      </button>
-    </div>
-  );
-}
 
 // ── App ───────────────────────────────────────────────────────────────────────
-// import Dashboard from "./Dashboard";
+
 export default function App() {
   const [tab, setTab] = useState("login"); // "login" | "register"
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const googleToken = params.get("token");
+    if (googleToken) {
+      localStorage.setItem("token", googleToken);
+      setToken(googleToken);
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -546,6 +564,7 @@ export default function App() {
         />
     );
 
+
   return (
     <>
       <style>{css}</style>
@@ -556,7 +575,7 @@ export default function App() {
         <div className="auth-left">
           <a className="logo" href="#">
             <div className="logo-icon">✉</div>
-            RelayMail
+            RelayMails
           </a>
 
           <div className="left-content">
