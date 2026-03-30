@@ -7,7 +7,7 @@ from app.models.email import Email
 from app.models.alias import Alias
 from app.api.deps import get_current_user
 
-router = APIRouter(prefix="/emails", tags=["emails"])
+router = APIRouter(tags=["emails"])
 
 
 @router.get("/")
