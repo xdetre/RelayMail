@@ -538,8 +538,9 @@ function RegisterForm({ onSwitchToLogin }) {
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [tab, setTab] = useState("login"); // "login" | "register"
+  const [tab, setTab] = useState("login");
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
+  const [userEmail, setUserEmail] = useState("");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -551,18 +552,32 @@ export default function App() {
     }
   }, []);
 
+  // Получаем email пользователя
+  useEffect(() => {
+    if (token) {
+      fetch(`${API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(r => r.json())
+        .then(data => setUserEmail(data.email || ""))
+        .catch(() => {});
+    }
+  }, [token]);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setToken("");
+    setUserEmail("");
   };
 
   if (token) return (
-  <Dashboard
-    token={token}
-    onLogout={handleLogout}
-    userEmail="user@example.com"
-        />
-    );
+    <Dashboard
+      token={token}
+      onLogout={handleLogout}
+
+      userEmail={userEmail}
+    />
+  );
 
 
   return (
