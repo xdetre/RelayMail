@@ -11,3 +11,5 @@ python-dotenv
 pydantic-settings
 authlib
 httpx
+resend
+psycopg2-binary
