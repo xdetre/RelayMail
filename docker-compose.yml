@@ -41,5 +41,16 @@ services:
     depends_on:
       - backend
 
+  migrate:
+    build: .
+    container_name: relaymail_migrate
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+asyncpg://relay:relay@db:5432/relaymail
+    command: alembic upgrade head
+    volumes:
+      - .:/app
+
 volumes:
   postgres_data:
