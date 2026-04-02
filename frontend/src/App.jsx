@@ -461,13 +461,66 @@ function LoginForm({ onSuccess }) {
   );
 }
 
+// ── ResendButton ─────────────────────────────────────────────────────────────
+function ResendButton({ email }) {
+  const [seconds, setSeconds] = useState(60);
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (seconds <= 0) return;
+    const timer = setTimeout(() => setSeconds(s => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [seconds]);
+
+  const handleResend = async () => {
+    setSending(true); setSent(false);
+    try {
+      const res = await fetch(`${API_URL}/users/resend-code`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      if (!res.ok) throw new Error();
+      setSent(true);
+      setSeconds(60);
+    } catch {
+    } finally {
+      setSending(false);
+    }
+  };
+
+  return (
+    <div style={{ textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.muted }}>
+      {sent && <div style={{ color: colors.green, marginBottom: 8 }}>✓ Code sent</div>}
+      {seconds > 0 ? (
+        <span>Resend code in {seconds}s</span>
+      ) : (
+        <button
+          onClick={handleResend}
+          disabled={sending}
+          style={{
+            background: "none", border: "none", color: colors.blue,
+            cursor: "pointer", fontFamily: "'JetBrains Mono', monospace",
+            fontSize: 12, textDecoration: "underline"
+          }}
+        >
+          {sending ? "Sending..." : "Resend code"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+
 // ── Register Form ─────────────────────────────────────────────────────────────
-function RegisterForm({ onSwitchToLogin }) {
+function RegisterForm({ onSwitchToLogin, onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [step, setStep] = useState("register"); // "register" | "verify"
+  const [code, setCode] = useState("");
 
   const handleSubmit = async () => {
     if (!email || !password) { setError("Fill in all fields"); return; }
@@ -481,7 +534,7 @@ function RegisterForm({ onSwitchToLogin }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
-      setSuccess(true);
+      setStep("verify"); // переходим к верификации
     } catch (e) {
       setError(e.message);
     } finally {
@@ -489,19 +542,54 @@ function RegisterForm({ onSwitchToLogin }) {
     }
   };
 
-  if (success) return (
-    <>
-      <h2 className="auth-title">You're in</h2>
-      <p className="auth-subtitle">Account created successfully</p>
-      <div className="success-banner">
-        ✓ Account created for {email}<br />
-        You can now sign in and create aliases.
-      </div>
-      <button className="btn-primary" onClick={onSwitchToLogin}>
-        Go to Sign in →
-      </button>
-    </>
-  );
+  const handleVerify = async () => {
+    if (code.length !== 4) { setError("Enter 4-digit code"); return; }
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`${API_URL}/users/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Invalid code");
+      localStorage.setItem("token", data.access_token);
+      onSuccess(data.access_token);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+if (step === "verify") return (
+  <>
+    <h2 className="auth-title">Check your email</h2>
+    <p className="auth-subtitle">We sent a 4-digit code to {email}</p>
+
+    {error && <div className="error-banner">{error}</div>}
+
+    <Field
+      label="Verification code"
+      value={code}
+      onChange={setCode}
+      placeholder="0000"
+    />
+
+    <button className="btn-primary" onClick={handleVerify} disabled={loading}>
+      {loading && <span className="spinner" />}
+      {loading ? "Verifying..." : "Verify email"}
+    </button>
+
+    <div className="auth-divider">or</div>
+
+    <ResendButton email={email} />
+
+    <button className="btn-ghost" style={{width: "100%", marginTop: 8}} onClick={() => setStep("register")}>
+      ← Back
+    </button>
+  </>
+);
 
   return (
     <>
@@ -521,7 +609,7 @@ function RegisterForm({ onSwitchToLogin }) {
       <div className="auth-divider">or</div>
 
       <button className="btn-google" onClick={() => window.location.href = "http://localhost:8001/auth/google"}>
-          <svg width="18" height="18" viewBox="0 0 18 18">
+        <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
           <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
@@ -529,7 +617,6 @@ function RegisterForm({ onSwitchToLogin }) {
         </svg>
         Continue with Google
       </button>
-
     </>
   );
 }
@@ -641,7 +728,7 @@ export default function App() {
 
             {tab === "login"
               ? <LoginForm onSuccess={setToken} />
-              : <RegisterForm onSwitchToLogin={() => setTab("login")} />
+              : <RegisterForm onSwitchToLogin={() => setTab("login")} onSuccess={setToken} />
             }
           </div>
         </div>
