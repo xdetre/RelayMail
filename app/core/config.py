@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     DOMAIN: str
     RESEND_API_KEY: str
+    TURNSTILE_SECRET_KEY: str
 
 
     GOOGLE_CLIENT_ID: str
