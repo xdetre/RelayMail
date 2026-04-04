@@ -1,6 +1,13 @@
 import { useState, useEffect } from "react";
+const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
 const API_URL = "http://localhost:8001";
+
+window.onTurnstileSuccess = (token) => {
+  document.dispatchEvent(
+    new CustomEvent("turnstile-success", { detail: token })
+  );
+};
 
 // ── Tokens ──────────────────────────────────────────────────────────────────
 const colors = {
@@ -522,16 +529,33 @@ function RegisterForm({ onSwitchToLogin, onSuccess }) {
   const [error, setError] = useState("");
   const [step, setStep] = useState("register"); // "register" | "verify"
   const [code, setCode] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [cfToken, setCfToken] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (window.turnstile) {
+        clearInterval(interval);
+        window.turnstile.render("#cf-turnstile-container", {
+          sitekey: SITE_KEY,
+          callback: (token) => setCfToken(token),
+        });
+      }
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleSubmit = async () => {
     if (!email || !password) { setError("Fill in all fields"); return; }
     if (password.length < 8) { setError("Password must be at least 8 characters, include 1 uppercase and 1 special character"); return; }
+    if (!agreed) { setError("Please agree to Terms and Privacy Policy"); return; }
+    if (!cfToken) { setError("Please complete the captcha"); return; }
     setLoading(true); setError("");
     try {
       const res = await fetch(`${API_URL}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, cf_token: cfToken }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
@@ -577,7 +601,7 @@ if (step === "verify") return (
       placeholder="0000"
     />
 
-    <button className="btn-primary" onClick={handleVerify} disabled={loading}>
+    <button className="btn-primary" onClick={handleVerify} disabled={loading || !agreed}>
       {loading && <span className="spinner" />}
       {loading ? "Verifying..." : "Verify email"}
     </button>
@@ -602,10 +626,32 @@ if (step === "verify") return (
       <Field label="Your real email" type="email" value={email} onChange={setEmail} placeholder="you@example.com" />
       <Field label="Password" type="password" value={password} onChange={setPassword} placeholder="Min. 8 chars, 1 uppercase, 1 special" />
 
+      <div id="cf-turnstile-container" style={{ margin: "16px 0" }} />
+
       <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
         {loading && <span className="spinner" />}
         {loading ? "Creating account..." : "Create account"}
       </button>
+
+      <div style={{
+        display: "flex", alignItems: "flex-start", gap: 10, margin: "16px 0",
+        fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.muted
+      }}>
+        <input
+          type="checkbox"
+          id="agree"
+          checked={agreed}
+          onChange={e => setAgreed(e.target.checked)}
+          style={{ marginTop: 2, accentColor: colors.blue, cursor: "pointer" }}
+        />
+        <label htmlFor="agree" style={{ cursor: "pointer", lineHeight: 1.5 }}>
+          I agree to the{" "}
+          <a href="/terms" target="_blank" style={{ color: colors.blue }}>Terms of Service</a>
+          {" "}and{" "}
+          <a href="/privacy" target="_blank" style={{ color: colors.blue }}>Privacy Policy</a>
+        </label>
+      </div>
+
 
       <div className="auth-divider">or</div>
 
@@ -639,6 +685,7 @@ export default function App() {
       window.history.replaceState({}, "", "/");
     }
   }, []);
+
 
   // Получаем email пользователя
   useEffect(() => {
