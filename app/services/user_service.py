@@ -2,9 +2,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
+from app.core.config import settings
 from app.models.user import User
 from app.core.security import hash_password
 from app.services.email_service import generate_code, send_verification_email
+
+import httpx
 
 
 async def create_user(db: AsyncSession, email: str, password: str):
@@ -36,4 +39,14 @@ async def create_google_user(db: AsyncSession, email: str):
     await db.refresh(user)
     return user
 
+async def verify_turnstile(token: str) -> bool:
+    async with httpx.AsyncClient() as client:
+        res = await client.post(
+            "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+            data={
+                "secret": settings.TURNSTILE_SECRET_KEY,
+                "response": token,
+            }
+        )
+        return res.json().get("success", False)
 
