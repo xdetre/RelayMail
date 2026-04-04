@@ -13,3 +13,6 @@ authlib
 httpx
 resend
 psycopg2-binary
+pytest
+pytest-asyncio
+bcrypt==4.0.1
