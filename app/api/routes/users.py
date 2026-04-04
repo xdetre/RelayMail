@@ -6,7 +6,7 @@ from app.api.deps import rate_limit, get_current_user
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.schemas.user import UserCreate, UserResponse, TokenResponse, UserLogin, VerifyRequest, ResendRequest
-from app.services.user_service import create_user
+from app.services.user_service import create_user, verify_turnstile
 from app.services.auth_service import authenticate_user
 from app.models.user import User
 from datetime import datetime, timedelta
@@ -15,6 +15,8 @@ router = APIRouter(tags=["users"])
 
 @router.post("/users/register", response_model=UserResponse)
 async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
+    if not await verify_turnstile(data.cf_token):
+        raise HTTPException(status_code=400, detail="Captcha verification failed")
     try:
         user = await create_user(db, email=data.email, password=data.password)
     except ValueError as e:
