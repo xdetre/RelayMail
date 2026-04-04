@@ -27,7 +27,8 @@ async def register_user(data: UserCreate, db: AsyncSession = Depends(get_db), _:
 @router.post("/users/login", response_model=TokenResponse)
 async def login(data: UserLogin, db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
     token = await authenticate_user(db, data.email, data.password)
-
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     return {"access_token": token}
 
 
