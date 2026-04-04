@@ -49,4 +49,4 @@ async def google_callback(code: str, db: AsyncSession = Depends(get_db)):
         user_info = user_res.json()
 
     access_token = await get_or_create_google_user(db, user_info["email"])
-    return RedirectResponse(f"http://localhost:5173?token={access_token}")
+    return RedirectResponse(f"https://relaymails.dev?token={access_token}")
