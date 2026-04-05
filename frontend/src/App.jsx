@@ -3,8 +3,6 @@ const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
 const API_URL = "https://relaymails.dev/api";
 
-const API_URL = "https://relaymails.dev/api";
-
 
 window.onTurnstileSuccess = (token) => {
   document.dispatchEvent(
