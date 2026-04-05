@@ -7,6 +7,7 @@ from app.core.config import settings
 from app.db.session import Base
 from app.models.user import User
 from app.models.alias import Alias
+from app.models.email import Email
 
 config = context.config
 
