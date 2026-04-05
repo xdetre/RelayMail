@@ -1,7 +1,7 @@
 from app.core.security import create_access_token
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.user_service import get_user_by_email
+from app.services.user_service import get_user_by_email, create_google_user
 from app.core.security import verify_password
 
 
@@ -20,7 +20,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str):
 async def get_or_create_google_user(db: AsyncSession, email: str):
     user = await get_user_by_email(db, email)
     if not user:
-        user = await create_access_token(db, email)
+        user = await create_google_user(db, email)
 
     token = create_access_token({"user_id": user.id})
     return token
