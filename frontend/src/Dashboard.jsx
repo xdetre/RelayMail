@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API_URL = "http://localhost:8001";
+const API_URL = "https://relaymails.dev/api";
 
 const colors = {
   bg:       "#0a0a0f",
