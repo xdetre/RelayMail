@@ -455,7 +455,7 @@ function LoginForm({ onSuccess }) {
 
       <div className="auth-divider">or</div>
 
-      <button className="btn-google" onClick={() => window.location.href = "http://localhost:8001/auth/google"}>
+      <button className="btn-google" onClick={() => window.location.href = "https://relaymails.dev/api/auth/google"}>
           <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
@@ -655,7 +655,7 @@ if (step === "verify") return (
 
       <div className="auth-divider">or</div>
 
-      <button className="btn-google" onClick={() => window.location.href = "http://localhost:8001/auth/google"}>
+      <button className="btn-google" onClick={() => window.location.href = "https://relaymails.dev/api/auth/google"}>
         <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
