@@ -3,14 +3,10 @@ const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
 const API_URL = "https://relaymails.dev/api";
 
-
 window.onTurnstileSuccess = (token) => {
-  document.dispatchEvent(
-    new CustomEvent("turnstile-success", { detail: token })
-  );
+  document.dispatchEvent(new CustomEvent("turnstile-success", { detail: token }));
 };
 
-// ── Tokens ──────────────────────────────────────────────────────────────────
 const colors = {
   bg:        "#0a0a0f",
   surface:   "#111118",
@@ -22,10 +18,10 @@ const colors = {
   text:      "#e2e8f0",
   muted:     "#64748b",
   muted2:    "#475569",
-  error:     "#4ade80",
+  error:     "#f87171",
+  green:     "#4ade80",
 };
 
-// ── Styles ───────────────────────────────────────────────────────────────────
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400&display=swap');
 
@@ -46,7 +42,6 @@ const css = `
     overflow: hidden;
   }
 
-  /* Left panel */
   .auth-left {
     display: flex;
     flex-direction: column;
@@ -104,9 +99,7 @@ const css = `
     color: ${colors.text};
   }
 
-  .left-headline span {
-    color: ${colors.blue};
-  }
+  .left-headline span { color: ${colors.blue}; }
 
   .left-desc {
     font-family: 'JetBrains Mono', monospace;
@@ -148,7 +141,6 @@ const css = `
     opacity: 0.5;
   }
 
-  /* Right panel */
   .auth-right {
     display: flex;
     align-items: center;
@@ -172,6 +164,11 @@ const css = `
   .auth-card {
     width: 100%;
     max-width: 400px;
+  }
+
+  /* Mobile header — скрыт на десктопе */
+  .mobile-header {
+    display: none;
   }
 
   .auth-tabs {
@@ -221,9 +218,7 @@ const css = `
     line-height: 1.6;
   }
 
-  .field {
-    margin-bottom: 20px;
-  }
+  .field { margin-bottom: 20px; }
 
   .field-label {
     display: block;
@@ -309,6 +304,20 @@ const css = `
     margin-right: 8px;
   }
 
+  .btn-ghost {
+    padding: 7px 14px;
+    background: none;
+    border: 1px solid ${colors.border};
+    border-radius: 7px;
+    color: ${colors.muted};
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { border-color: ${colors.muted2}; color: ${colors.text}; }
+
   .btn-google {
     width: 100%;
     padding: 13px;
@@ -375,7 +384,6 @@ const css = `
     line-height: 1.5;
   }
 
-  /* Grid noise overlay */
   .noise {
     position: fixed;
     inset: 0;
@@ -386,15 +394,76 @@ const css = `
     z-index: 0;
   }
 
-  /* Responsive */
+  /* ── MOBILE ─────────────────────────────────────────────── */
   @media (max-width: 768px) {
-    .auth-root { grid-template-columns: 1fr; }
+    .auth-root {
+      grid-template-columns: 1fr;
+      min-height: 100vh;
+    }
+
     .auth-left { display: none; }
-    .auth-right { padding: 32px 24px; }
+
+    .auth-right {
+      padding: 0;
+      align-items: flex-start;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    /* Мобильный хедер */
+    .mobile-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 24px;
+      border-bottom: 1px solid ${colors.border};
+      background: ${colors.surface};
+      width: 100%;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .mobile-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: ${colors.text};
+    }
+
+    .mobile-logo-icon {
+      width: 26px;
+      height: 26px;
+      background: ${colors.blue};
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+    }
+
+    .mobile-tagline {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: ${colors.muted};
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 100%;
+      padding: 28px 24px 40px;
+      flex: 1;
+    }
+
+    .auth-title { font-size: 24px; }
+
+    .auth-tabs { margin-bottom: 28px; }
   }
 `;
 
-// ── Components ────────────────────────────────────────────────────────────────
 function Field({ label, type = "text", value, onChange, placeholder, error }) {
   return (
     <div className="field">
@@ -412,7 +481,6 @@ function Field({ label, type = "text", value, onChange, placeholder, error }) {
   );
 }
 
-// ── Login Form ────────────────────────────────────────────────────────────────
 function LoginForm({ onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -423,11 +491,11 @@ function LoginForm({ onSuccess }) {
     if (!email || !password) { setError("Fill in all fields"); return; }
     setLoading(true); setError("");
     try {
-        const res = await fetch(`${API_URL}/users/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        });
+      const res = await fetch(`${API_URL}/users/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Login failed");
       localStorage.setItem("token", data.access_token);
@@ -457,7 +525,7 @@ function LoginForm({ onSuccess }) {
       <div className="auth-divider">or</div>
 
       <button className="btn-google" onClick={() => window.location.href = "https://relaymails.dev/api/auth/google"}>
-          <svg width="18" height="18" viewBox="0 0 18 18">
+        <svg width="18" height="18" viewBox="0 0 18 18">
           <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
           <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
           <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
@@ -465,12 +533,10 @@ function LoginForm({ onSuccess }) {
         </svg>
         Continue with Google
       </button>
-
     </>
   );
 }
 
-// ── ResendButton ─────────────────────────────────────────────────────────────
 function ResendButton({ email }) {
   const [seconds, setSeconds] = useState(60);
   const [sending, setSending] = useState(false);
@@ -521,14 +587,12 @@ function ResendButton({ email }) {
   );
 }
 
-
-// ── Register Form ─────────────────────────────────────────────────────────────
 function RegisterForm({ onSwitchToLogin, onSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [step, setStep] = useState("register"); // "register" | "verify"
+  const [step, setStep] = useState("register");
   const [code, setCode] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [cfToken, setCfToken] = useState("");
@@ -560,7 +624,7 @@ function RegisterForm({ onSwitchToLogin, onSuccess }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Registration failed");
-      setStep("verify"); // переходим к верификации
+      setStep("verify");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -588,34 +652,29 @@ function RegisterForm({ onSwitchToLogin, onSuccess }) {
     }
   };
 
-if (step === "verify") return (
-  <>
-    <h2 className="auth-title">Check your email</h2>
-    <p className="auth-subtitle">We sent a 4-digit code to {email}</p>
+  if (step === "verify") return (
+    <>
+      <h2 className="auth-title">Check your email</h2>
+      <p className="auth-subtitle">We sent a 4-digit code to {email}</p>
 
-    {error && <div className="error-banner">{error}</div>}
+      {error && <div className="error-banner">{error}</div>}
 
-    <Field
-      label="Verification code"
-      value={code}
-      onChange={setCode}
-      placeholder="0000"
-    />
+      <Field label="Verification code" value={code} onChange={setCode} placeholder="0000" />
 
-    <button className="btn-primary" onClick={handleVerify} disabled={loading || !agreed}>
-      {loading && <span className="spinner" />}
-      {loading ? "Verifying..." : "Verify email"}
-    </button>
+      <button className="btn-primary" onClick={handleVerify} disabled={loading}>
+        {loading && <span className="spinner" />}
+        {loading ? "Verifying..." : "Verify email"}
+      </button>
 
-    <div className="auth-divider">or</div>
+      <div className="auth-divider">or</div>
 
-    <ResendButton email={email} />
+      <ResendButton email={email} />
 
-    <button className="btn-ghost" style={{width: "100%", marginTop: 8}} onClick={() => setStep("register")}>
-      ← Back
-    </button>
-  </>
-);
+      <button className="btn-ghost" style={{ width: "100%", marginTop: 8 }} onClick={() => setStep("register")}>
+        ← Back
+      </button>
+    </>
+  );
 
   return (
     <>
@@ -629,7 +688,7 @@ if (step === "verify") return (
 
       <div id="cf-turnstile-container" style={{ margin: "16px 0" }} />
 
-      <button className="btn-primary" onClick={handleSubmit} disabled={loading}>
+      <button className="btn-primary" onClick={handleSubmit} disabled={loading || !agreed}>
         {loading && <span className="spinner" />}
         {loading ? "Creating account..." : "Create account"}
       </button>
@@ -653,7 +712,6 @@ if (step === "verify") return (
         </label>
       </div>
 
-
       <div className="auth-divider">or</div>
 
       <button className="btn-google" onClick={() => window.location.href = "https://relaymails.dev/api/auth/google"}>
@@ -668,9 +726,6 @@ if (step === "verify") return (
     </>
   );
 }
-
-
-// ── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
   const [tab, setTab] = useState("login");
@@ -687,8 +742,6 @@ export default function App() {
     }
   }, []);
 
-
-  // Получаем email пользователя
   useEffect(() => {
     if (token) {
       fetch(`${API_URL}/users/me`, {
@@ -707,14 +760,8 @@ export default function App() {
   };
 
   if (token) return (
-    <Dashboard
-      token={token}
-      onLogout={handleLogout}
-
-      userEmail={userEmail}
-    />
+    <Dashboard token={token} onLogout={handleLogout} userEmail={userEmail} />
   );
-
 
   return (
     <>
@@ -722,13 +769,12 @@ export default function App() {
       <div className="noise" />
 
       <div className="auth-root">
-        {/* Left */}
+        {/* Left panel — desktop only */}
         <div className="auth-left">
           <a className="logo" href="#">
             <div className="logo-icon">✉</div>
             RelayMails
           </a>
-
           <div className="left-content">
             <h1 className="left-headline">
               Your email,<br />
@@ -738,7 +784,6 @@ export default function App() {
               Generate disposable aliases. Forward mail to your real inbox.
               Stay private everywhere.
             </p>
-
             <div className="left-features">
               {[
                 "Unlimited aliases per account",
@@ -753,12 +798,20 @@ export default function App() {
               ))}
             </div>
           </div>
-
           <div className="left-footer">relaymails.dev — open source</div>
         </div>
 
-        {/* Right */}
+        {/* Right panel */}
         <div className="auth-right">
+          {/* Mobile header */}
+          <div className="mobile-header">
+            <div className="mobile-logo">
+              <div className="mobile-logo-icon">✉</div>
+              RelayMails
+            </div>
+            <span className="mobile-tagline">Your email, private.</span>
+          </div>
+
           <div className="auth-card">
             <div className="auth-tabs">
               <button
