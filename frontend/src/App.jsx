@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
+const API_URL = "https://relaymails.dev/api";
 
-// const API_URL = "https://relaymails.dev/api";
-const API_URL = import.meta.env.VITE_API_URL;
 
 window.onTurnstileSuccess = (token) => {
   document.dispatchEvent(
