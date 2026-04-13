@@ -20,8 +20,8 @@ services:
     container_name: relaymail_backend
     depends_on:
       - db
-    environment:
-      DATABASE_URL: postgresql+asyncpg://relay:relay@db:5432/relaymail
+    env_file:
+      - .env.local
     ports:
       - "8001:8000"
     volumes:
@@ -48,8 +48,8 @@ services:
     container_name: relaymail_migrate
     depends_on:
       - db
-    environment:
-      DATABASE_URL: postgresql+asyncpg://relay:relay@db:5432/relaymail
+    env_file:
+      - .env.local
     command: alembic upgrade head
     volumes:
       - .:/app
