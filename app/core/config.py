@@ -9,10 +9,10 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str
     TURNSTILE_SECRET_KEY: str
 
-
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
-    GOOGLE_REDIRECT_URI: str = "http://localhost:8001/auth/google/callback"
+    GOOGLE_REDIRECT_URI: str
+    FRONTEND_URL: str = "http://localhost:5173"
 
     class Config:
         env_file = ".env"
