@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 
-const API_URL = "https://relaymails.dev/api";
+// const API_URL = "https://relaymails.dev/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const colors = {
   bg:       "#0a0a0f",
