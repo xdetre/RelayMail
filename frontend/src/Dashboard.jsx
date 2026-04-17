@@ -383,6 +383,29 @@ export default function Dashboard({ token, onLogout, userEmail }) {
             </>
           )}
         </main>
+
+        <footer style={{
+          textAlign: "center",
+          padding: "20px",
+          borderTop: `1px solid ${colors.border}`,
+        }}>
+            <a
+
+            href="mailto:support@relaymails.dev"
+            style={{
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "13px",
+              color: colors.muted,
+              textDecoration: "none",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={e => e.target.style.color = colors.text}
+            onMouseLeave={e => e.target.style.color = colors.muted}
+          >
+            support@relaymails.dev
+          </a>
+        </footer>
+
       </div>
       <Toast message={toast.message} show={toast.show} />
     </>
