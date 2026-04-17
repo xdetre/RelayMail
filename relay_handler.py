@@ -7,9 +7,8 @@ from email import message_from_string
 from email.utils import parseaddr
 
 # --- Конфиг ---
-DB_URL    = "postgresql://relay:relay@localhost:5432/relaymail"
-DOMAIN    = "relaymails.dev"
-
+DB_URL = "postgresql://relay:relay@localhost:5432/relaymail"
+DOMAIN = "relaymails.dev"
 
 # --- Логирование ---
 logging.basicConfig(
@@ -23,9 +22,9 @@ log = logging.getLogger(__name__)
 def parse_alias(recipient: str):
     """u3.d2fwlscv@relaymails.dev → (3, 'd2fwlscv')"""
     try:
-        local = recipient.split("@")[0]          # u3.d2fwlscv
-        user_part, alias = local.split(".", 1)   # u3 | d2fwlscv
-        user_id = int(user_part[1:])             # 3
+        local = recipient.split("@")[0]  # u3.d2fwlscv
+        user_part, alias = local.split(".", 1)  # u3 | d2fwlscv
+        user_id = int(user_part[1:])  # 3
         return user_id, alias
     except Exception as e:
         log.warning(f"parse_alias failed for {recipient!r}: {e}")
@@ -67,34 +66,47 @@ def save_email(alias_id: int, sender: str, subject: str):
 def forward_email(real_email: str, raw_data: str, original_recipient: str):
     try:
         msg = message_from_string(raw_data)
+        original_from = msg.get("From", "")
+        _, original_addr = parseaddr(original_from)
+        sender_name = msg.get("From", "Unknown Sender")
 
-        # Меняем получателя
+        if "From" in msg:
+            msg.replace_header("From", f"{sender_name} via relaymails.dev <noreply@relaymails.dev>")
+        else:
+            msg["From"] = f"via relaymails.dev <noreply@relaymails.dev>"
+
+        # Удаляем оригинальные DKIM подписи — они невалидны после изменения From
+        while "DKIM-Signature" in msg:
+            del msg["DKIM-Signature"]
+
+        if "Reply-To" not in msg:
+            msg["Reply-To"] = original_from
+
         if "To" in msg:
             msg.replace_header("To", real_email)
         else:
             msg["To"] = real_email
 
-        # Добавляем заголовок для отладки
         msg["X-RelayMail-Original-To"] = original_recipient
 
-        # Отправляем через локальный Postfix
+        log.info(f"Sending with From: {msg.get('From')}")  # дебаг
+
         with smtplib.SMTP("localhost", 25) as smtp:
             smtp.sendmail(
-                f"noreply@relaymails.dev",
+                "noreply@relaymails.dev",
                 real_email,
-                msg.as_string()
+                msg.as_bytes()  # вместо msg.as_string()
             )
 
         log.info(f"Forwarded to {real_email} (alias: {original_recipient})")
     except Exception as e:
         log.error(f"forward_email failed → {real_email}: {e}")
-        sys.exit(1)
 
 
 def parse_headers(raw_data: str):
     msg = message_from_string(raw_data)
-    _, sender  = parseaddr(msg.get("From", ""))
-    subject    = msg.get("Subject", "(no subject)")
+    _, sender = parseaddr(msg.get("From", ""))
+    subject = msg.get("Subject", "(no subject)")
     return sender, subject
 
 
@@ -106,12 +118,11 @@ def main():
 
     recipient = sys.argv[1].lower().strip()
     log.info(f"Incoming mail for: {recipient}")
-    
+
     if recipient == "support@relaymails.dev":
         raw_data = sys.stdin.read()
-        forward_email("a.bakriev@icloud.com", raw_data, recipient)
+        forward_email("enderctoun@gmail.com", raw_data, recipient)
         sys.exit(0)
-
 
     if not recipient.endswith("@" + DOMAIN):
         log.info(f"Not our domain, skipping: {recipient}")
