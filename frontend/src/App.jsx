@@ -800,7 +800,9 @@ export default function App() {
               ))}
             </div>
           </div>
-          <div className="left-footer">relaymails.dev — open source</div>
+          <a className="left-footer" href="mailto:support@relaymails.dev">
+            support@relaymails.dev
+          </a>
         </div>
 
         {/* Right panel */}
