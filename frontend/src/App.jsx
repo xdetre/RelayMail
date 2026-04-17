@@ -138,7 +138,7 @@ const css = `
 
   .left-footer {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
+    font-size: 15px;
     color: ${colors.muted};
     opacity: 0.5;
   }
