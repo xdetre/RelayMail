@@ -29,7 +29,7 @@ def generate_code() -> str:
 
 async def send_verification_email(to_email: str, code: str):
     resend.Emails.send({
-        "from": "RelayMail <noreply@relaymails.dev>",
+        "from": "RelayMail <verify@relaymails.dev>",
         "to": to_email,
         "subject": "RelayMail — verification code",
         "html": f"""
