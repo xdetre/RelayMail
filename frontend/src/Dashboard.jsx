@@ -210,6 +210,10 @@ export default function Dashboard({ token, onLogout, userEmail }) {
   const fetchAliases = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/aliases`, { headers });
+      if (res.status === 401) {
+        onLogout(); // выкидываем на логин
+        return;
+      }
       if (!res.ok) throw new Error("Failed to load aliases");
       const data = await res.json();
       setAliases(data);
