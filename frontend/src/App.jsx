@@ -842,8 +842,21 @@ export default function App() {
             </div>
 
             {tab === "login"
-              ? <LoginForm onSuccess={setToken} />
-              : <RegisterForm onSwitchToLogin={() => setTab("login")} onSuccess={setToken} />
+              ? <LoginForm
+                  onSuccess={setToken}
+                  email={sharedEmail}
+                  setEmail={setSharedEmail}
+                  password={sharedPassword}
+                  setPassword={setSharedPassword}
+                />
+              : <RegisterForm
+                  onSwitchToLogin={() => setTab("login")}
+                  onSuccess={setToken}
+                  email={sharedEmail}
+                  setEmail={setSharedEmail}
+                  password={sharedPassword}
+                  setPassword={setSharedPassword}
+                />
             }
           </div>
         </div>
