@@ -628,7 +628,11 @@ function RegisterForm({ onSwitchToLogin, onSuccess }) {
       if (!res.ok) throw new Error(data.detail || "Registration failed");
       setStep("verify");
     } catch (e) {
-      setError(e.message);
+      if (e.message.includes("already registered")) {
+        onSwitchToLogin(); // ← переключает на логин с заполненными данными
+      } else {
+        setError(e.message);
+      }
     } finally {
       setLoading(false);
     }
