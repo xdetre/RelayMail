@@ -483,9 +483,9 @@ function Field({ label, type = "text", value, onChange, placeholder, error }) {
   );
 }
 
-function LoginForm({ onSuccess }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function LoginForm({ onSuccess, email, setEmail, password, setPassword }) {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -589,9 +589,9 @@ function ResendButton({ email }) {
   );
 }
 
-function RegisterForm({ onSwitchToLogin, onSuccess }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function RegisterForm({ onSwitchToLogin, onSuccess, email, setEmail, password, setPassword }) {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [step, setStep] = useState("register");
