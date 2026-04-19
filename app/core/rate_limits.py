@@ -5,16 +5,16 @@ rate_limit_store = {}
 def is_rate_limited(key: str, limit: int = 5, window: int = 60):
     now = time.time()
 
-    if key not in requests:
-        requests[key] = []
+    if key not in rate_limit_store:
+        rate_limit_store[key] = []
 
-    requests[key] = [
-        t for t in requests[key]
+    rate_limit_store[key] = [
+        t for t in rate_limit_store[key]
         if now - t < window
     ]
 
-    if len(requests[key]) >= limit:
+    if len(rate_limit_store[key]) >= limit:
         return True
 
-    requests[key].append(now)
+    rate_limit_store[key].append(now)
     return False
