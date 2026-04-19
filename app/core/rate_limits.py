@@ -1,6 +1,6 @@
 import time
 
-requests = {}
+rate_limit_store = {}
 
 def is_rate_limited(key: str, limit: int = 5, window: int = 60):
     now = time.time()
