@@ -276,7 +276,12 @@ export default function Dashboard({ token, onLogout, userEmail }) {
       <div className="dash-root">
         <nav className="nav">
           <div className="nav-logo">
-            <div className="nav-logo-icon">✉</div>
+            <div className="logo-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+              </svg>
+            </div>
             RelayMails
           </div>
           <div className="nav-right">
