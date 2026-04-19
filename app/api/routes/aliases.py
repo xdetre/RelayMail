@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.services.alias_service import create_alias, get_user_aliases
 from app.schemas.alias import AliasResponse
-from app.api.deps import get_current_user
+from app.api.deps import get_current_user, rate_limit_soft
 from app.models.user import User
 
 from app.services.alias_service import enable_alias, disable_alias, delete_alias
