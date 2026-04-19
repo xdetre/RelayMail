@@ -22,13 +22,13 @@ async def new_alias(current_user: User = Depends(get_current_user), db: AsyncSes
 
 
 @router.get("/aliases", response_model=List[AliasResponse])
-async def list_aliases(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def list_aliases(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit_soft)):
     aliases = await get_user_aliases(db, user_id=current_user.id)
     return aliases
 
 
 @router.patch("/aliases/{alias_id}/enable")
-async def enable_alias_endpoint(alias_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def enable_alias_endpoint(alias_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
 
     return await enable_alias(
         db,
@@ -37,7 +37,7 @@ async def enable_alias_endpoint(alias_id: int, current_user: User = Depends(get_
     )
 
 @router.patch("/aliases/{alias_id}/disable")
-async def disable_alias_endpoint(alias_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def disable_alias_endpoint(alias_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
 
     return await disable_alias(
         db,
@@ -46,11 +46,7 @@ async def disable_alias_endpoint(alias_id: int, current_user: User = Depends(get
     )
 
 @router.delete("/aliases/{alias_id}")
-async def delete_alias_endpoint(
-    alias_id: int,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db)
-):
+async def delete_alias_endpoint(alias_id: int, current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
 
     return await delete_alias(
         db,
