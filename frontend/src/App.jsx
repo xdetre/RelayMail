@@ -735,6 +735,8 @@ function RegisterForm({ onSwitchToLogin, onSuccess }) {
 
 export default function App() {
   const [tab, setTab] = useState("login");
+  const [sharedEmail, setSharedEmail] = useState("");
+  const [sharedPassword, setSharedPassword] = useState("");
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [userEmail, setUserEmail] = useState("");
 
