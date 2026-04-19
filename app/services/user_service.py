@@ -11,6 +11,8 @@ import httpx
 
 
 async def create_user(db: AsyncSession, email: str, password: str):
+    if email.lower().endswith("@relaymails.dev"):
+        raise ValueError("Registration with this domain is not allowed")
     hashed = hash_password(password)
     code = generate_code()
     user = User(email=email, password_hash=hashed, verification_code=code, is_verified=False)
