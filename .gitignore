@@ -1,5 +1,5 @@
 .env.local
-.env.prodaction
+.env.production
 *.pyc
 __pycache__/
 .venv/
