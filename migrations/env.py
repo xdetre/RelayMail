@@ -8,6 +8,8 @@ from app.db.session import Base
 from app.models.user import User
 from app.models.alias import Alias
 from app.models.email import Email
+from app.models.temp_alias import TempAlias
+from app.models.temp_email import TempEmail
 
 config = context.config
 
