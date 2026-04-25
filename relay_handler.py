@@ -171,5 +171,40 @@ def main():
     forward_email(real_email, raw_data, recipient)
 
 
+def save_temp_email_sync(alias: str, sender: str, subject: str, body: str):
+    try:
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT id FROM temp_aliases 
+                    WHERE alias = %s AND expires_at > NOW()
+                """, (alias,))
+                row = cur.fetchone()
+                if not row:
+                    log.warning(f"Temp alias not found or expired: {alias}")
+                    return
+                temp_alias_id = row[0]
+                cur.execute("""
+                    INSERT INTO temp_emails (temp_alias_id, sender, subject, body, received_at)
+                    VALUES (%s, %s, %s, %s, NOW())
+                """, (temp_alias_id, sender, subject, body))
+            conn.commit()
+    except Exception as e:
+        log.error(f"save_temp_email_sync error: {e}")
+
+
+def extract_body(raw_data: str) -> str:
+    msg = message_from_string(raw_data)
+    if msg.is_multipart():
+        for part in msg.walk():
+            if part.get_content_type() == "text/plain":
+                return part.get_payload(decode=True).decode("utf-8", errors="ignore")
+            if part.get_content_type() == "text/html":
+                return part.get_payload(decode=True).decode("utf-8", errors="ignore")
+    else:
+        return msg.get_payload(decode=True).decode("utf-8", errors="ignore")
+    return ""
+
+
 if __name__ == "__main__":
     main()
