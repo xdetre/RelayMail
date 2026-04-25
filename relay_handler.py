@@ -30,6 +30,16 @@ def parse_alias(recipient: str):
         log.warning(f"parse_alias failed for {recipient!r}: {e}")
         return None, None
 
+def parse_temp_alias(recipient: str):
+    """temp.abc123@relaymails.dev → 'temp.abc123'"""
+    try:
+        local = recipient.split("@")[0]
+        if local.startswith("temp."):
+            return local
+        return None
+    except:
+        return None
+
 
 def resolve_alias(user_id: int, alias: str):
     """Возвращает (alias_id, real_email) или None"""
