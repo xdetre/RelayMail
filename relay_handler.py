@@ -143,7 +143,16 @@ def main():
         log.error("Empty stdin")
         sys.exit(1)
 
+    # Проверяем temp алиас ПЕРЕД обычным parse_alias
+    temp_alias = parse_temp_alias(recipient)
+    if temp_alias:
+        sender, subject = parse_headers(raw_data)
+        body = extract_body(raw_data)
+        save_temp_email_sync(temp_alias, sender, subject, body)
+        sys.exit(0)
+
     user_id, alias = parse_alias(recipient)
+
     if user_id is None:
         log.warning(f"Could not parse alias from: {recipient}")
         sys.exit(0)
