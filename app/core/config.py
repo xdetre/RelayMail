@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     GOOGLE_REDIRECT_URI: str
     FRONTEND_URL: str = "http://localhost:5173"
 
+    TEMP_ALIAS_LIMIT: int = 2
+    TEMP_ALIAS_TTL_MINUTES: int = 60
+
     class Config:
         env_file = ".env"
 
