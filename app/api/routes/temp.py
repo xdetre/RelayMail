@@ -11,7 +11,7 @@ router = APIRouter(tags=["temp"])
 
 
 @router.post("/temp/create")
-async def create_temp_aliases(request: Request, db: AsyncSession = Depends(get_db), _None = Depends(rate_limit)):
+async def create_temp_aliases_endpoint(request: Request, db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
     ip = request.client.host
     fingerprint = request.headers.get("user-agent", "")
     try:
