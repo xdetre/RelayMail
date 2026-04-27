@@ -438,10 +438,7 @@ export default function TempMail() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          const valid = parsed.filter(a => {
-            const expires = new Date(a.expires_at.replace(" ", "T"));
-            return expires > new Date();
-          });
+          const valid = parsed.filter(a => new Date(a.expires_at) > new Date());
           if (valid.length > 0) {
             setAliases(valid.map((a, i) => ({ ...a, index: i })));
             setLoading(false);
