@@ -21,7 +21,7 @@ async def create_temp_aliases_endpoint(request: Request, db: AsyncSession = Depe
         raise HTTPException(status_code=429, detail=str(e))
 
 
-@router.get("/temp/{alias_id}/emails")
+@router.get("/temp/{alias}/emails")
 async def get_temp_emails_endpoint(alias: str, db: AsyncSession = Depends(get_db)):
     temp = await get_temp_alias(db, alias)
     if not temp:
