@@ -16,7 +16,7 @@ async def create_temp_aliases_endpoint(request: Request, db: AsyncSession = Depe
     fingerprint = request.headers.get("user-agent", "")
     try:
         aliases = await create_temp_aliases(db, ip, fingerprint)
-        return [{"alias": a.alias, "alias_email": f"{a.alias}@{settings.DOMAIN}", "expires_at": str(a.expires_at)} for a in aliases]
+        return [{"alias": a.alias, "alias_email": f"{a.alias}@{settings.DOMAIN}", "expires_at": a.expires_at.isoformat() + "Z"} for a in aliases]
     except ValueError as e:
         raise HTTPException(status_code=429, detail=str(e))
 
