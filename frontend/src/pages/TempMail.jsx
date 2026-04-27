@@ -413,6 +413,7 @@ export default function TempMail() {
   const [limitReached, setLimitReached] = useState(false);
   const [toast, setToast] = useState({ show: false, msg: "" });
   const pollRef = useRef(null);
+  const navigate = useNavigate();
 
   const showToast = (msg) => {
     setToast({ show: true, msg });
@@ -426,6 +427,16 @@ export default function TempMail() {
 
   // Создаём алиасы при загрузке
   const initRef = useRef(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      localStorage.setItem("token", token);
+      window.history.replaceState({}, "", "/");
+      navigate("/app");
+    }
+  }, []);
 
   useEffect(() => {
     if (initRef.current) return;
