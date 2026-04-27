@@ -241,7 +241,7 @@ const css = `
   .email-detail-body {
     font-family: 'JetBrains Mono', monospace; font-size: 12px;
     color: ${colors.text}; line-height: 1.8;
-    white-space: pre-wrap; word-break: break-word;
+    word-break: break-word;
     max-height: 300px; overflow-y: auto;
     padding: 12px; background: ${colors.surface};
     border-radius: 8px; border: 1px solid ${colors.border};
@@ -360,7 +360,7 @@ function AliasCard({ alias, selected, onSelect, onCopy }) {
     : [alias.alias, "relaymails.dev"];
 
   return (
-    <div className={`alias-card${selected ? " selected" : ""}`} onClick={onSelect}>
+    <div className={`alias-card${selected ? " selected" : ""}`} onClick={() => { onSelect(); onCopy(`${local}@${domain}`); }}>
       <div className="alias-card-label">Alias {alias.index + 1}</div>
       <div className="alias-card-email">
         {local}<span>@{domain}</span>
@@ -394,9 +394,10 @@ function EmailDetail({ email, onBack }) {
           Time: {time}
         </div>
       </div>
-      <div className="email-detail-body">
-        {email.body || "(empty)"}
-      </div>
+      <div className="email-detail-body"
+      dangerouslySetInnerHTML={{ __html: email.body || "(empty)" }}
+      style={{ fontFamily: "sans-serif", fontSize: 14, lineHeight: 1.6 }}
+      />
     </div>
   );
 }
@@ -437,7 +438,10 @@ export default function TempMail() {
       if (saved) {
         try {
           const parsed = JSON.parse(saved);
-          const valid = parsed.filter(a => new Date(a.expires_at) > new Date());
+          const valid = parsed.filter(a => {
+            const expires = new Date(a.expires_at.replace(" ", "T"));
+            return expires > new Date();
+          });
           if (valid.length > 0) {
             setAliases(valid.map((a, i) => ({ ...a, index: i })));
             setLoading(false);
