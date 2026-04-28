@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
 
     TEMP_ALIAS_LIMIT: int = 2
-    TEMP_ALIAS_TTL_MINUTES: int = 60
+    TEMP_ALIAS_TTL_MINUTES: int = 30
 
     class Config:
         env_file = ".env"
