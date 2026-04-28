@@ -1,6 +1,6 @@
 from typing import List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -17,7 +17,10 @@ router = APIRouter(tags=["aliases"])
 
 @router.post("/aliases", response_model=AliasResponse)
 async def new_alias(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
-    alias = await create_alias(db, user_id=current_user.id)
+    try:
+        alias = await create_alias(db, user_id=current_user.id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return alias
 
 
