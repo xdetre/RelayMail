@@ -353,15 +353,22 @@ function useTimer(expiresAt) {
 }
 
 // ── AliasCard ───────────────────────────────────────────────
-function AliasCard({ alias, selected, onSelect, onCopy }) {
+function AliasCard({ alias, selected, onSelect, onCopy, isLocked }) {
   const { remaining, urgent } = useTimer(alias.expires_at);
   const [local, domain] = alias.alias_email
     ? alias.alias_email.split("@")
     : [alias.alias, "relaymails.dev"];
 
   return (
-    <div className={`alias-card${selected ? " selected" : ""}`} onClick={() => { onSelect(); onCopy(`${local}@${domain}`); }}>
-      <div className="alias-card-label">Alias {alias.index + 1}</div>
+    <div
+      className={`alias-card${selected ? " selected" : ""}${isLocked ? " locked" : ""}`}
+      onClick={isLocked ? undefined : () => { onSelect(); onCopy(`${local}@${domain}`); }}
+      style={{ opacity: isLocked ? 0.5 : 1, cursor: isLocked ? "default" : "pointer" }}
+    >
+      <div className="alias-card-label">
+        Alias {alias.index + 1}
+        {isLocked && <span style={{ marginLeft: 8, color: colors.muted, fontSize: 10 }}>🔒 activates after alias 1</span>}
+      </div>
       <div className="alias-card-email">
         {local}<span>@{domain}</span>
       </div>
@@ -372,7 +379,8 @@ function AliasCard({ alias, selected, onSelect, onCopy }) {
         <button
           className="alias-copy-btn"
           title="Copy"
-          onClick={e => { e.stopPropagation(); onCopy(`${local}@${domain}`); }}
+          disabled={isLocked}
+          onClick={e => { e.stopPropagation(); if (!isLocked) onCopy(`${local}@${domain}`); }}
         >
           ⎘
         </button>
@@ -565,17 +573,20 @@ export default function TempMail() {
         ) : (
           <>
             {/* Alias cards */}
-            <div className="tm-aliases">
-              {aliases.map((alias, i) => (
+            {aliases.map((alias, i) => {
+              const firstExpired = aliases[0] && new Date(aliases[0].expires_at.replace(" ", "T")) < new Date();
+              const isLocked = i === 1 && !firstExpired;
+              return (
                 <AliasCard
                   key={i}
                   alias={alias}
                   selected={selectedIdx === i}
                   onSelect={() => { setSelectedIdx(i); setSelectedEmail(null); }}
                   onCopy={copyToClipboard}
+                  isLocked={isLocked}
                 />
-              ))}
-            </div>
+              );
+            })}
 
             {/* Inbox */}
             <div className="tm-inbox">
