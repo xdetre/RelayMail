@@ -3,8 +3,9 @@ import string
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
+from sqlalchemy import select, func
 
+from app.core.config import settings
 from app.models.alias import Alias
 
 
@@ -14,20 +15,24 @@ def generate_random_alias(length: int = 8):
 
 
 async def create_alias(db: AsyncSession, user_id: int):
-    MAX_RETRIES = 5
+    # Проверяем лимит пользователя
+    result = await db.execute(
+        select(func.count()).where(Alias.user_id == user_id)
+    )
+    count = result.scalar()
+    if count >= settings.MAX_ALIASES_PER_USER:
+        raise ValueError(f"Alias limit reached ({settings.MAX_ALIASES_PER_USER} max)")
 
+    MAX_RETRIES = 5
     for _ in range(MAX_RETRIES):
         alias_value = generate_random_alias()
         alias = Alias(alias=alias_value, user_id=user_id)
-
         db.add(alias)
 
         try:
             await db.commit()
             await db.refresh(alias)
-
             return alias
-
         except IntegrityError:
             await db.rollback()
 
