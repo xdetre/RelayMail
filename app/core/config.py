@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     TEMP_ALIAS_LIMIT: int = 2
     TEMP_ALIAS_TTL_MINUTES: int = 30
 
+    MAX_ALIASES_PER_USER: int = 8
+
     class Config:
         env_file = ".env"
 
