@@ -29,11 +29,14 @@ async def create_temp_aliases(db: AsyncSession, ip: str, fingerprint: str) -> li
     if count >= settings.TEMP_ALIAS_LIMIT:
         raise ValueError("Limit reached for this IP")
 
-    expires_at = datetime.utcnow() + timedelta(minutes=settings.TEMP_ALIAS_TTL_MINUTES)
+    now = datetime.utcnow()
+    ttl = timedelta(minutes=settings.TEMP_ALIAS_TTL_MINUTES)
     aliases = []
 
-    for _ in range(settings.TEMP_ALIAS_LIMIT - count):
+    for i in range(settings.TEMP_ALIAS_LIMIT - count):
         alias_str = generate_alias()
+        # Каждый следующий алиас начинается позже
+        expires_at = now + ttl * (i + 1)
         alias = TempAlias(
             alias=alias_str,
             ip=ip,
