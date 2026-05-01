@@ -38,13 +38,16 @@ async def get_current_user(
 
 
 async def rate_limit(request: Request):
-    ip = request.client.host
+    ip = request.headers.get("X-Forwarded-For", request.client.host)
+    ip = ip.split(",")[0].strip()
 
-    if is_rate_limited(ip, limit=5, window=60):  # строгий — для register/login
+    if is_rate_limited(ip, limit=30, window=60):  # строгий — для register/login
         raise HTTPException(status_code=429, detail="Too many requests")
 
 
 async def rate_limit_soft(request: Request):
-    ip = request.client.host
+    ip = request.headers.get("X-Forwarded-For", request.client.host)
+    ip = ip.split(",")[0].strip()
+
     if is_rate_limited(f"soft:{ip}", limit=60, window=60):  # мягкий — для GET
         raise HTTPException(status_code=429, detail="Too many requests")
