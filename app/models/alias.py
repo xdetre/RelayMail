@@ -14,6 +14,6 @@ class Alias(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="aliases")
-    emails = relationship("Email", back_populates="alias")
+    emails = relationship("Email", back_populates="alias", cascade="all, delete-orphan")
     # user: Mapped[List["User"]] = relationship(back_populates="aliases")
 
