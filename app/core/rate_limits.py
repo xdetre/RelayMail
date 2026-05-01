@@ -2,7 +2,7 @@ import time
 
 rate_limit_store = {}
 
-def is_rate_limited(key: str, limit: int = 5, window: int = 60):
+def is_rate_limited(key: str, limit: int = 30, window: int = 60):
     now = time.time()
 
     if key not in rate_limit_store:
