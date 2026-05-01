@@ -7,7 +7,7 @@ class Email(Base):
     __tablename__ = 'emails'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    alias_id: Mapped[int] = mapped_column(ForeignKey('aliases.id'))
+    alias_id: Mapped[int] = mapped_column(ForeignKey('aliases.id', ondelete='CASCADE'))
     sender: Mapped[str] = mapped_column(String)
     subject: Mapped[str] = mapped_column(String)
     received_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
