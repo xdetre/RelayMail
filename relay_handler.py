@@ -60,14 +60,14 @@ def resolve_alias(user_id: int, alias: str):
         return None
 
 
-def save_email(alias_id: int, sender: str, subject: str):
+def save_email(alias_id: int, sender: str, subject: str, body: str = ""):
     try:
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    INSERT INTO emails (alias_id, sender, subject, received_at)
-                    VALUES (%s, %s, %s, NOW())
-                """, (alias_id, sender, subject))
+                    INSERT INTO emails (alias_id, sender, subject, body, received_at)
+                    VALUES (%s, %s, %s, %s, NOW())
+                """, (alias_id, sender, subject, body))
             conn.commit()
     except Exception as e:
         log.error(f"save_email DB error: {e}")
@@ -166,8 +166,8 @@ def main():
     log.info(f"Resolved: {recipient} → {real_email}")
 
     sender, subject = parse_headers(raw_data)
-
-    save_email(alias_id, sender, subject)
+    body = extract_body(raw_data)
+    save_email(alias_id, sender, subject, body)
     forward_email(real_email, raw_data, recipient)
 
 
