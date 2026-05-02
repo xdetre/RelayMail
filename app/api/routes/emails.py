@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,3 +33,16 @@ async def get_alias_emails(alias_id: int, db: AsyncSession = Depends(get_db), us
         .limit(50)
     )
     return result.scalars().all()
+
+
+@router.delete("/emails/{email_id}")
+async def delete_email(email_id: int, db: AsyncSession = Depends(get_db), user=Depends(get_current_user)):
+    result = await db.execute(
+        select(Email).join(Alias).where(Email.id == email_id, Alias.user_id == user.id)
+    )
+    email = result.scalar_one_or_none()
+    if not email:
+        raise HTTPException(status_code=404, detail="Not found")
+    await db.delete(email)
+    await db.commit()
+    return {"ok": True}
