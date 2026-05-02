@@ -15,6 +15,7 @@ const colors = {
   error:    "#f87171",
   green:    "#4ade80",
   greenBg:  "rgba(74,222,128,0.08)",
+  orange:   "#fb923c",
 };
 
 const css = `
@@ -28,8 +29,7 @@ const css = `
     display: flex; align-items: center; justify-content: space-between;
     padding: 0 24px; height: 60px; flex-shrink: 0;
     border-bottom: 1px solid ${colors.border};
-    background: ${colors.surface};
-    z-index: 10;
+    background: ${colors.surface}; z-index: 10;
   }
   .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 800; letter-spacing: -0.5px; }
   .nav-logo-icon { width: 28px; height: 28px; background: ${colors.blue}; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
@@ -38,31 +38,15 @@ const css = `
   .btn-ghost { padding: 7px 14px; background: none; border: 1px solid ${colors.border}; border-radius: 7px; color: ${colors.muted}; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
   .btn-ghost:hover { border-color: ${colors.muted2}; color: ${colors.text}; }
 
-  /* Split layout */
   .dash-body { flex: 1; display: flex; overflow: hidden; }
 
-  /* ── Aliases panel ── */
-  .aliases-panel {
-    width: 380px; flex-shrink: 0;
-    border-right: 1px solid ${colors.border};
-    display: flex; flex-direction: column;
-    overflow: hidden;
-  }
-
-  .aliases-panel-header {
-    padding: 20px 20px 16px; flex-shrink: 0;
-    border-bottom: 1px solid ${colors.border};
-    background: ${colors.surface};
-  }
-
+  /* Aliases panel */
+  .aliases-panel { width: 380px; flex-shrink: 0; border-right: 1px solid ${colors.border}; display: flex; flex-direction: column; overflow: hidden; }
+  .aliases-panel-header { padding: 20px 20px 16px; flex-shrink: 0; border-bottom: 1px solid ${colors.border}; background: ${colors.surface}; }
   .panel-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .panel-title { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
 
-  .btn-primary {
-    padding: 7px 14px; background: ${colors.blue}; color: #fff; border: none;
-    border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700;
-    cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px;
-  }
+  .btn-primary { padding: 7px 14px; background: ${colors.blue}; color: #fff; border: none; border-radius: 7px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
   .btn-primary:hover { background: ${colors.blueDim}; }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
   .spinner { width: 11px; height: 11px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -77,16 +61,9 @@ const css = `
 
   .aliases-list { flex: 1; overflow-y: auto; padding: 10px; }
 
-  .alias-item {
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 12px;
-    background: ${colors.surface}; border: 1px solid ${colors.border};
-    border-radius: 9px; margin-bottom: 5px;
-    cursor: pointer; transition: all 0.15s;
-  }
+  .alias-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; background: ${colors.surface}; border: 1px solid ${colors.border}; border-radius: 9px; margin-bottom: 5px; cursor: pointer; transition: all 0.15s; }
   .alias-item:hover { border-color: ${colors.muted2}; }
   .alias-item.selected { border-color: ${colors.blue}; background: rgba(59,130,246,0.05); }
-
   .alias-item-body { flex: 1; min-width: 0; }
   .alias-item-email { font-family: 'JetBrains Mono', monospace; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px; }
   .alias-item-email span { color: ${colors.blue}; }
@@ -99,30 +76,23 @@ const css = `
   .alias-item-actions { display: flex; gap: 4px; flex-shrink: 0; opacity: 0; transition: opacity 0.15s; }
   .alias-item:hover .alias-item-actions { opacity: 1; }
 
-  .btn-icon {
-    width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
-    background: none; border: 1px solid ${colors.border}; border-radius: 5px;
-    color: ${colors.muted}; cursor: pointer; font-size: 12px; transition: all 0.15s;
-  }
+  .btn-icon { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; background: none; border: 1px solid ${colors.border}; border-radius: 5px; color: ${colors.muted}; cursor: pointer; font-size: 12px; transition: all 0.15s; }
   .btn-icon:hover { border-color: ${colors.blue}; color: ${colors.blue}; }
   .btn-icon.danger:hover { border-color: ${colors.error}; color: ${colors.error}; }
 
   .panel-footer { padding: 12px 20px; border-top: 1px solid ${colors.border}; text-align: center; flex-shrink: 0; }
 
-  /* ── Inbox panel ── */
+  /* Right panel */
   .inbox-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+  .inbox-select-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.muted}; text-align: center; }
 
-  .inbox-select-state {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.muted}; text-align: center;
-  }
+  /* Tabs */
+  .panel-tabs { display: flex; border-bottom: 1px solid ${colors.border}; background: ${colors.surface}; flex-shrink: 0; padding: 0 24px; }
+  .panel-tab { padding: 12px 16px; font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: ${colors.muted}; background: none; border: none; border-bottom: 2px solid transparent; cursor: pointer; transition: all 0.2s; margin-bottom: -1px; }
+  .panel-tab:hover { color: ${colors.text}; }
+  .panel-tab.active { color: ${colors.blue}; border-bottom-color: ${colors.blue}; }
 
-  .inbox-header {
-    padding: 14px 24px; flex-shrink: 0;
-    border-bottom: 1px solid ${colors.border};
-    background: ${colors.surface};
-    display: flex; align-items: center; justify-content: space-between;
-  }
+  .inbox-header { padding: 14px 24px; flex-shrink: 0; border-bottom: 1px solid ${colors.border}; background: ${colors.surface}; display: flex; align-items: center; justify-content: space-between; }
   .inbox-alias-name { font-family: 'JetBrains Mono', monospace; font-size: 13px; }
   .inbox-alias-name span { color: ${colors.blue}; }
   .inbox-live { display: flex; align-items: center; gap: 5px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: ${colors.green}; }
@@ -130,19 +100,13 @@ const css = `
   @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
   .email-list { flex: 1; overflow-y: auto; }
-
-  .email-row {
-    padding: 13px 24px; border-bottom: 1px solid ${colors.border};
-    cursor: pointer; transition: background 0.15s;
-  }
+  .email-row { padding: 13px 24px; border-bottom: 1px solid ${colors.border}; cursor: pointer; transition: background 0.15s; }
   .email-row:hover { background: ${colors.surface2}; }
-
   .email-row-top { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 3px; }
   .email-sender { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
   .email-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: ${colors.muted}; white-space: nowrap; }
   .email-subject { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 2px; }
   .email-preview { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.muted}; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
   .inbox-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.muted}; }
 
   /* Email detail */
@@ -154,18 +118,34 @@ const css = `
   .detail-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.muted}; line-height: 1.8; }
   .detail-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
 
-  /* Error */
-  .error-banner { padding: 10px 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.error}; margin: 10px; }
+  /* Stats */
+  .stats-panel { flex: 1; overflow-y: auto; padding: 24px; }
+  .stats-section { margin-bottom: 32px; }
+  .stats-section-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: ${colors.muted}; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 
-  /* Skeleton */
+  .domain-row { margin-bottom: 10px; }
+  .domain-row-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .domain-name { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.text}; }
+  .domain-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.muted}; }
+  .domain-bar-bg { height: 4px; background: ${colors.surface2}; border-radius: 2px; overflow: hidden; }
+  .domain-bar { height: 100%; border-radius: 2px; background: ${colors.blue}; transition: width 0.4s ease; }
+
+  .activity-grid { display: flex; align-items: flex-end; gap: 3px; height: 60px; }
+  .activity-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+  .activity-bar { width: 100%; background: ${colors.blue}; border-radius: 2px 2px 0 0; opacity: 0.7; min-height: 2px; transition: height 0.3s ease; }
+  .activity-bar:hover { opacity: 1; }
+  .activity-date { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: ${colors.muted}; white-space: nowrap; }
+
+  .stats-empty { text-align: center; padding: 40px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.muted}; }
+
+  /* Error / Skeleton */
+  .error-banner { padding: 10px 14px; background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.2); border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.error}; margin: 10px; }
   .skeleton { background: ${colors.surface}; border: 1px solid ${colors.border}; border-radius: 9px; height: 58px; margin-bottom: 5px; animation: pulse 1.4s ease-in-out infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-  /* Toast */
   .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(6px); padding: 9px 18px; background: ${colors.surface2}; border: 1px solid ${colors.border}; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${colors.green}; opacity: 0; transition: all 0.2s; pointer-events: none; white-space: nowrap; z-index: 100; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  /* Mobile */
   @media (max-width: 768px) {
     .aliases-panel { width: 100%; border-right: none; }
     .inbox-panel { display: none; position: fixed; inset: 60px 0 0 0; background: ${colors.bg}; z-index: 20; }
@@ -185,6 +165,72 @@ function useIsMobile() {
   return v;
 }
 
+// ── Stats view ───────────────────────────────────────────────
+function StatsView({ aliasId, headers }) {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`${API_URL}/aliases/${aliasId}/stats`, { headers })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { setStats(data); setLoading(false); });
+  }, [aliasId]);
+
+  if (loading) return <div className="stats-empty">Loading...</div>;
+  if (!stats || stats.total === 0) return (
+    <div className="stats-empty">
+      <div style={{ fontSize: 28, opacity: 0.15, marginBottom: 12 }}>📊</div>
+      No data yet.<br />Stats will appear once emails arrive.
+    </div>
+  );
+
+  const maxCount = Math.max(...stats.top_domains.map(d => d.count), 1);
+  const maxActivity = Math.max(...stats.activity.map(a => a.count), 1);
+  const activityReversed = [...stats.activity].reverse();
+
+  return (
+    <div className="stats-panel">
+      {/* Top domains */}
+      <div className="stats-section">
+        <div className="stats-section-title">Top senders — {stats.total} emails total</div>
+        {stats.top_domains.map(({ domain, count }) => (
+          <div className="domain-row" key={domain}>
+            <div className="domain-row-header">
+              <span className="domain-name">{domain}</span>
+              <span className="domain-count">{count} email{count !== 1 ? "s" : ""}</span>
+            </div>
+            <div className="domain-bar-bg">
+              <div className="domain-bar" style={{ width: `${(count / maxCount) * 100}%` }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Activity chart */}
+      {stats.activity.length > 0 && (
+        <div className="stats-section">
+          <div className="stats-section-title">Activity — last {stats.activity.length} days</div>
+          <div className="activity-grid">
+            {activityReversed.map(({ date, count }) => {
+              const d = new Date(date);
+              const label = `${d.getMonth() + 1}/${d.getDate()}`;
+              const heightPct = (count / maxActivity) * 100;
+              return (
+                <div className="activity-bar-wrap" key={date} title={`${date}: ${count} emails`}>
+                  <div className="activity-bar" style={{ height: `${heightPct}%` }} />
+                  <div className="activity-date">{label}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main ─────────────────────────────────────────────────────
 export default function Dashboard({ token, onLogout, userEmail }) {
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -196,6 +242,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
   const [emailsLoading, setEmailsLoading] = useState(false);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [showInbox, setShowInbox] = useState(false);
+  const [activeTab, setActiveTab] = useState("inbox"); // "inbox" | "stats"
   const pollRef = useRef(null);
   const isMobile = useIsMobile();
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
@@ -225,17 +272,18 @@ export default function Dashboard({ token, onLogout, userEmail }) {
 
   useEffect(() => {
     clearInterval(pollRef.current);
-    if (!selectedAlias) return;
+    if (!selectedAlias || activeTab !== "inbox") return;
     setEmailsLoading(true);
     fetchEmails(selectedAlias.id).finally(() => setEmailsLoading(false));
     pollRef.current = setInterval(() => fetchEmails(selectedAlias.id), 10000);
     return () => clearInterval(pollRef.current);
-  }, [selectedAlias, fetchEmails]);
+  }, [selectedAlias, fetchEmails, activeTab]);
 
   const selectAlias = (alias) => {
     setSelectedAlias(alias);
     setSelectedEmail(null);
     setEmails([]);
+    setActiveTab("inbox");
     if (isMobile) setShowInbox(true);
   };
 
@@ -350,7 +398,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
             </div>
           </div>
 
-          {/* Inbox panel */}
+          {/* Right panel */}
           <div className={`inbox-panel${isMobile && showInbox ? " show" : ""}`}>
             {!selectedAlias ? (
               <div className="inbox-select-state">
@@ -369,48 +417,58 @@ export default function Dashboard({ token, onLogout, userEmail }) {
               </div>
             ) : (
               <>
-                <div className="inbox-header">
-                  <div>
-                    {isMobile && <button className="back-btn" style={{ marginBottom: 4 }} onClick={() => setShowInbox(false)}>← Aliases</button>}
-                    <div className="inbox-alias-name">
-                      {(() => { const [l, d] = getEmail(selectedAlias).split("@"); return <>{l}<span>@{d}</span></>; })()}
-                    </div>
-                  </div>
-                  <div className="inbox-live"><span className="inbox-live-dot" />Live</div>
+                {/* Tabs */}
+                <div className="panel-tabs">
+                  {isMobile && <button className="back-btn" style={{ marginRight: 12, marginBottom: 0 }} onClick={() => setShowInbox(false)}>←</button>}
+                  <button className={`panel-tab${activeTab === "inbox" ? " active" : ""}`} onClick={() => setActiveTab("inbox")}>
+                    Inbox {emails.length > 0 && `(${emails.length})`}
+                  </button>
+                  <button className={`panel-tab${activeTab === "stats" ? " active" : ""}`} onClick={() => setActiveTab("stats")}>
+                    Stats
+                  </button>
                 </div>
 
-                {emailsLoading && emails.length === 0 ? (
-                  <div className="inbox-empty" style={{ fontFamily: "'JetBrains Mono',monospace", fontSize: 12, color: colors.muted }}>Loading...</div>
-                ) : emails.length === 0 ? (
-                  <div className="inbox-empty">
-                    <div style={{ fontSize: 28, opacity: 0.15, marginBottom: 12 }}>📭</div>
-                    No emails yet.<br />
-                    <span style={{ color: colors.blue }}>{getEmail(selectedAlias)}</span><br />is waiting.
+                {/* Alias name header */}
+                <div className="inbox-header">
+                  <div className="inbox-alias-name">
+                    {(() => { const [l, d] = getEmail(selectedAlias).split("@"); return <>{l}<span>@{d}</span></>; })()}
                   </div>
-                ) : (
-                  <div className="email-list">
-                    {emails.map(e => (
-                      <div key={e.id} className="email-row" onClick={() => setSelectedEmail(e)}>
-                        <div className="email-row-top">
-                          <div className="email-sender">{e.sender}</div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                            <div className="email-time">{fmt(e.received_at)}</div>
-                            <button
-                              className="btn-icon danger"
-                              title="Delete"
-                              onClick={async (ev) => {
+                  {activeTab === "inbox" && <div className="inbox-live"><span className="inbox-live-dot" />Live</div>}
+                </div>
+
+                {/* Tab content */}
+                {activeTab === "inbox" ? (
+                  emailsLoading && emails.length === 0 ? (
+                    <div className="inbox-empty">Loading...</div>
+                  ) : emails.length === 0 ? (
+                    <div className="inbox-empty">
+                      <div style={{ fontSize: 28, opacity: 0.15, marginBottom: 12 }}>📭</div>
+                      No emails yet.<br />
+                      <span style={{ color: colors.blue }}>{getEmail(selectedAlias)}</span><br />is waiting.
+                    </div>
+                  ) : (
+                    <div className="email-list">
+                      {emails.map(e => (
+                        <div key={e.id} className="email-row" onClick={() => setSelectedEmail(e)}>
+                          <div className="email-row-top">
+                            <div className="email-sender">{e.sender}</div>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                              <div className="email-time">{fmt(e.received_at)}</div>
+                              <button className="btn-icon danger" title="Delete" onClick={async (ev) => {
                                 ev.stopPropagation();
                                 await fetch(`${API_URL}/emails/${e.id}`, { method: "DELETE", headers });
                                 setEmails(prev => prev.filter(x => x.id !== e.id));
-                              }}
-                            >✕</button>
+                              }}>✕</button>
+                            </div>
                           </div>
+                          <div className="email-subject">{e.subject || "(no subject)"}</div>
+                          <div className="email-preview">{(e.body || "").replace(/<[^>]*>/g, "").slice(0, 80)}</div>
                         </div>
-                        <div className="email-subject">{e.subject || "(no subject)"}</div>
-                        <div className="email-preview">{(e.body || "").replace(/<[^>]*>/g, "").slice(0, 80)}</div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )
+                ) : (
+                  <StatsView aliasId={selectedAlias.id} headers={headers} />
                 )}
               </>
             )}
