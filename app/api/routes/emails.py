@@ -17,7 +17,7 @@ async def get_emails(db: AsyncSession = Depends(get_db), user = Depends(get_curr
 
 
 #письма для конкретного Алиаса
-@router.get("/alias/{alias_id}/emails")
+@router.get("/aliases/{alias_id}/emails")
 async def get_alias_emails(alias_id: int, db: AsyncSession = Depends(get_db), user = Depends(get_current_user)):
     # Проверяем что алиас принадлежит пользователю
     alias = await db.execute(select(Alias).where(Alias.id == alias_id, Alias.user_id == user.id))
