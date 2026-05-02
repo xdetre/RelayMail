@@ -393,7 +393,18 @@ export default function Dashboard({ token, onLogout, userEmail }) {
                       <div key={e.id} className="email-row" onClick={() => setSelectedEmail(e)}>
                         <div className="email-row-top">
                           <div className="email-sender">{e.sender}</div>
-                          <div className="email-time">{fmt(e.received_at)}</div>
+                          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <div className="email-time">{fmt(e.received_at)}</div>
+                            <button
+                              className="btn-icon danger"
+                              title="Delete"
+                              onClick={async (ev) => {
+                                ev.stopPropagation();
+                                await fetch(`${API_URL}/emails/${e.id}`, { method: "DELETE", headers });
+                                setEmails(prev => prev.filter(x => x.id !== e.id));
+                              }}
+                            >✕</button>
+                          </div>
                         </div>
                         <div className="email-subject">{e.subject || "(no subject)"}</div>
                         <div className="email-preview">{(e.body || "").replace(/<[^>]*>/g, "").slice(0, 80)}</div>
