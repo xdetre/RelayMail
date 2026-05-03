@@ -11,6 +11,7 @@ class Alias(Base):
     alias: Mapped[str] = mapped_column(String, unique=True, index=True)
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_custom: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="aliases")
