@@ -13,6 +13,7 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     verification_code: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     code_sent_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    is_pro: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     aliases = relationship("Alias", back_populates="user")
