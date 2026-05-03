@@ -1,5 +1,6 @@
 import random
 import string
+import re
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -79,3 +80,33 @@ async def delete_alias(db: AsyncSession, alias_id: int, user_id: int):
     await db.delete(alias)
     await db.commit()
     return alias
+
+
+async def create_custom_alias(db: AsyncSession, user_id: int, name: str):
+    # Валидация имени
+    if not re.match(r'^[a-z0-9._-]+$', name):
+        raise ValueError("Name can only contain lowercase letters, numbers, dots, hyphens and underscores")
+    if len(name) < 2 or len(name) > 30:
+        raise ValueError("Name must be between 2 and 30 characters")
+
+    # Проверяем лимит
+    result = await db.execute(select(func.count()).where(Alias.user_id == user_id))
+    count = result.scalar()
+    if count >= settings.MAX_ALIASES_PER_USER:
+        raise ValueError(f"Alias limit reached ({settings.MAX_ALIASES_PER_USER} max)")
+
+    # Проверяем что имя свободно
+    existing = await db.execute(select(Alias).where(Alias.alias == name))
+    if existing.scalar_one_or_none():
+        raise ValueError(f"Alias '{name}' is already taken")
+
+    alias = Alias(alias=name, user_id=user_id, is_custom=True)
+    db.add(alias)
+    try:
+        await db.commit()
+        await db.refresh(alias)
+        return alias
+    except IntegrityError:
+        await db.rollback()
+        raise ValueError("Alias already taken")
+
