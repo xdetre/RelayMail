@@ -5,11 +5,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
 from app.services.alias_service import create_alias, get_user_aliases
-from app.schemas.alias import AliasResponse
+from app.schemas.alias import AliasResponse, CustomAliasRequest
 from app.api.deps import get_current_user, rate_limit_soft
 from app.models.user import User
 
-from app.services.alias_service import enable_alias, disable_alias, delete_alias
+from app.services.alias_service import enable_alias, disable_alias, delete_alias, create_custom_alias
 
 from app.api.deps import rate_limit
 
@@ -56,3 +56,18 @@ async def delete_alias_endpoint(alias_id: int, current_user: User = Depends(get_
         alias_id,
         current_user.id
     )
+
+@router.post("/aliases/custom", response_model=AliasResponse)
+async def new_custom_alias(
+    body: CustomAliasRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+    _: None = Depends(rate_limit)
+):
+    if not current_user.is_pro:
+        raise HTTPException(status_code=403, detail="Pro plan required")
+    try:
+        alias = await create_custom_alias(db, user_id=current_user.id, name=body.name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return alias
