@@ -151,6 +151,19 @@ def main():
         save_temp_email_sync(temp_alias, sender, subject, body)
         sys.exit(0)
 
+    # Проверяем кастомный алиас
+    local = recipient.split("@")[0]
+    if "." not in local or not local.split(".")[0].startswith("u"):
+        result = resolve_custom_alias(local)
+        if result:
+            alias_id, real_email = result
+            log.info(f"Custom alias resolved: {recipient} → {real_email}")
+            sender, subject = parse_headers(raw_data)
+            body = extract_body(raw_data)
+            save_email(alias_id, sender, subject, body)
+            forward_email(real_email, raw_data, recipient)
+            sys.exit(0)
+
     user_id, alias = parse_alias(recipient)
 
     if user_id is None:
@@ -205,6 +218,25 @@ def extract_body(raw_data: str) -> str:
         return msg.get_payload(decode=True).decode("utf-8", errors="ignore")
     return ""
 
+
+#для ответов через кастомные алиасы
+def resolve_custom_alias(alias: str):
+    """amazon@relaymails.dev → (alias_id, real_email) или None"""
+    try:
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT a.id, u.email
+                    FROM aliases a
+                    JOIN users u ON u.id = a.user_id
+                    WHERE a.alias = %s
+                      AND a.is_custom = true
+                      AND a.is_active = true
+                """, (alias,))
+                return cur.fetchone()
+    except Exception as e:
+        log.error(f"resolve_custom_alias DB error: {e}")
+        return None
 
 if __name__ == "__main__":
     main()
