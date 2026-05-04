@@ -231,7 +231,7 @@ function StatsView({ aliasId, headers }) {
 }
 
 // ── Main ─────────────────────────────────────────────────────
-export default function Dashboard({ token, onLogout, userEmail }) {
+export default function Dashboard({ token, onLogout, userEmail, onProfile }) {
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -340,6 +340,7 @@ export default function Dashboard({ token, onLogout, userEmail }) {
           </div>
           <div className="nav-right">
             {userEmail && <span className="nav-email">{userEmail}</span>}
+            <button className="btn-ghost" onClick={onProfile}>Profile</button>
             <button className="btn-ghost" onClick={onLogout}>Sign out</button>
           </div>
         </nav>
@@ -361,7 +362,17 @@ export default function Dashboard({ token, onLogout, userEmail }) {
               </div>
             </div>
 
-            {error && <div className="error-banner">{error}</div>}
+            {error && (
+              <div className="error-banner">
+                {error}
+                <a
+                  href={`mailto:support@relaymails.dev?subject=Bug Report&body=${encodeURIComponent(error)}`}
+                  style={{ marginLeft: 12, color: colors.blue, fontSize: 11, textDecoration: "none" }}
+                >
+                  Report →
+                </a>
+              </div>
+            )}
 
             <div className="aliases-list">
               {loading ? [1,2,3].map(i => <div className="skeleton" key={i} />) :
