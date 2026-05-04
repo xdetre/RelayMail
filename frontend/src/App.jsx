@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
+import Profile from "./Profile";
 
 // const API_URL = "https://relaymails.dev/api";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -467,25 +468,53 @@ const css = `
 `;
 
 function Field({ label, type = "text", value, onChange, placeholder, error }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+
   return (
     <div className="field">
       <label className="field-label">{label}</label>
-      <input
-        className={`field-input${error ? " error" : ""}`}
-        type={type}
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        placeholder={placeholder}
-        autoComplete="off"
-      />
+      <div style={{ position: "relative" }}>
+        <input
+          className={`field-input${error ? " error" : ""}`}
+          type={isPassword && showPassword ? "text" : type}
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          placeholder={placeholder}
+          autoComplete="off"
+          style={isPassword ? { paddingRight: 40 } : {}}
+        />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(s => !s)}
+            style={{
+              position: "absolute", right: 10, top: "50%",
+              transform: "translateY(-50%)", background: "none",
+              border: "none", cursor: "pointer", color: colors.muted, padding: 0
+            }}
+          >
+            {showPassword ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            )}
+          </button>
+        )}
+      </div>
       {error && <div className="field-error">{error}</div>}
     </div>
   );
 }
 
 function LoginForm({ onSuccess, email, setEmail, password, setPassword }) {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -739,6 +768,7 @@ export default function App() {
   const [sharedPassword, setSharedPassword] = useState("");
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [userEmail, setUserEmail] = useState("");
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -765,10 +795,25 @@ export default function App() {
     localStorage.removeItem("token");
     setToken("");
     setUserEmail("");
+    setShowProfile(false);
   };
 
+  if (token && showProfile) return (
+    <Profile
+    token={token}
+    userEmail={userEmail}
+    onLogout={handleLogout}
+    onBack={() => setShowProfile(false)}
+    />
+  );
+
   if (token) return (
-    <Dashboard token={token} onLogout={handleLogout} userEmail={userEmail} />
+    <Dashboard
+    token={token}
+    onLogout={handleLogout}
+    userEmail={userEmail}
+    onProfile={() => setShowProfile(true)}
+    />
   );
 
   return (
