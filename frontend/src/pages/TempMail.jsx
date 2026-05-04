@@ -124,7 +124,7 @@ const css = `
 
   /* ── Aliases grid ── */
   .tm-aliases {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    display: grid; grid-template-columns: 1fr; gap: 12px;
     margin-bottom: 24px;
   }
   .alias-card {
