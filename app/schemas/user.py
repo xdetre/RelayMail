@@ -39,3 +39,7 @@ class VerifyRequest(BaseModel):
 
 class ResendRequest(BaseModel):
     email: EmailStr
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str

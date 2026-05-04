@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.api.deps import rate_limit, get_current_user
-from app.core.security import create_access_token
+from app.core.security import create_access_token, verify_password, hash_password
 from app.db.session import get_db
-from app.schemas.user import UserCreate, UserResponse, TokenResponse, UserLogin, VerifyRequest, ResendRequest
+from app.schemas.user import UserCreate, UserResponse, TokenResponse, UserLogin, VerifyRequest, ResendRequest, ChangePasswordRequest
 from app.services.user_service import create_user, verify_turnstile
 from app.services.auth_service import authenticate_user
 from app.models.user import User
@@ -74,3 +74,25 @@ async def resend_code(data: ResendRequest, db: AsyncSession = Depends(get_db)):
 
     await send_verification_email(user.email, code)
     return {"message": "Code sent"}
+
+
+@router.delete("/users/me")
+async def delete_account(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
+    await db.delete(user)
+    await db.commit()
+    return {"message": "Account deleted"}
+
+
+@router.post("/users/change-password")
+async def change_password(
+    data: ChangePasswordRequest,
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    if not user.password_hash:
+        raise HTTPException(status_code=400, detail="Account uses Google login")
+    if not verify_password(data.current_password, user.password_hash):
+        raise HTTPException(status_code=400, detail="Wrong current password")
+    user.password_hash = hash_password(data.new_password)
+    await db.commit()
+    return {"message": "Password changed"}
