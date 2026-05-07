@@ -19,6 +19,9 @@ class Settings(BaseSettings):
 
     MAX_ALIASES_PER_USER: int = 8
 
+    CRYPTOCLOUD_API_KEY: str = ""
+    CRYPTOCLOUD_SHOP_ID: str = ""
+
     class Config:
         env_file = ".env"
 
