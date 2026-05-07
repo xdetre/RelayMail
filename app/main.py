@@ -5,6 +5,7 @@ from app.api.routes.users import router as user_router
 from app.api.routes.emails import router as emails_router
 from app.api.routes.auth import router as auth_router
 from app.api.routes.temp import router as temp_router
+from app.api.routes.payments import router as payments_router
 
 import asyncio
 from app.db.session import AsyncSessionLocal
@@ -28,6 +29,7 @@ app.include_router(user_router, prefix="/api")
 app.include_router(emails_router, prefix="/api")
 app.include_router(auth_router, prefix="/api")
 app.include_router(temp_router, prefix="/api")
+app.include_router(payments_router, prefix="/api")
 
 
 async def cleanup_task():
