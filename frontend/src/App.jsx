@@ -769,6 +769,7 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [userEmail, setUserEmail] = useState("");
   const [showProfile, setShowProfile] = useState(false);
+  const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -786,7 +787,10 @@ export default function App() {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(r => r.json())
-        .then(data => setUserEmail(data.email || ""))
+        .then(data => {
+          setUserEmail(data.email || "");
+          setIsPro(data.is_pro || false);
+        })
         .catch(() => {});
     }
   }, [token]);
@@ -802,6 +806,7 @@ export default function App() {
     <Profile
     token={token}
     userEmail={userEmail}
+    isPro={isPro}
     onLogout={handleLogout}
     onBack={() => setShowProfile(false)}
     />
