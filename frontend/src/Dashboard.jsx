@@ -231,7 +231,7 @@ function StatsView({ aliasId, headers }) {
 }
 
 // ── Main ─────────────────────────────────────────────────────
-export default function Dashboard({ token, onLogout, userEmail, onProfile }) {
+export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro }) {
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -340,6 +340,11 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile }) {
           </div>
           <div className="nav-right">
             {userEmail && <span className="nav-email">{userEmail}</span>}
+            {!isPro && (
+              <button className="btn-ghost" style={{ color: colors.blue, borderColor: colors.blue }} onClick={onProfile}>
+                ✦ Upgrade
+              </button>
+            )}
             <button className="btn-ghost" onClick={onProfile}>Profile</button>
             <button className="btn-ghost" onClick={onLogout}>Sign out</button>
           </div>
