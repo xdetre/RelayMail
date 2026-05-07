@@ -128,7 +128,7 @@ function PasswordField({ label, value, onChange, placeholder }) {
 }
 
 
-export default function Profile({ token, userEmail, onLogout, onBack }) {
+export default function Profile({ token, userEmail, isPro, onLogout, onBack }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -137,9 +137,11 @@ export default function Profile({ token, userEmail, onLogout, onBack }) {
   const [pwError, setPwError] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [upgradeLoading, setUpgradeLoading] = useState(false);
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const initials = userEmail ? userEmail[0].toUpperCase() : "?";
+
 
   const handleChangePassword = async () => {
     setPwError(""); setPwSuccess("");
@@ -174,6 +176,22 @@ export default function Profile({ token, userEmail, onLogout, onBack }) {
     } catch {
       setDeleteLoading(false);
       setShowDeleteModal(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setUpgradeLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/payments/create`, {
+        method: "POST",
+        headers,
+      });
+      const data = await res.json();
+      if (data.pay_url) window.open(data.pay_url, "_blank");
+    } catch {
+      // handle error
+    } finally {
+      setUpgradeLoading(false);
     }
   };
 
@@ -216,6 +234,27 @@ export default function Profile({ token, userEmail, onLogout, onBack }) {
               {pwLoading ? "Saving..." : "Save password"}
             </button>
           </div>
+
+          {/* Pro plan */}
+          {!isPro && (
+            <div className="profile-section">
+              <div className="section-title">Upgrade to Pro</div>
+              <div className="section-desc">
+                Get custom aliases like amazon@relaymails.dev and more features for $1/month.
+              </div>
+              <button className="btn-primary" onClick={handleUpgrade} disabled={upgradeLoading}>
+                {upgradeLoading && <span className="spinner" />}
+                {upgradeLoading ? "Loading..." : "Upgrade for $1/month →"}
+              </button>
+            </div>
+          )}
+
+          {isPro && (
+            <div className="profile-section">
+              <div className="section-title" style={{ color: colors.green }}>✓ Pro plan active</div>
+              <div className="section-desc">You have access to all Pro features including custom aliases.</div>
+            </div>
+          )}
 
           {/* Danger zone */}
           <div className="profile-section danger-zone">
