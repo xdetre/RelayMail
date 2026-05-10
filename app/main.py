@@ -11,6 +11,9 @@ import asyncio
 from app.db.session import AsyncSessionLocal
 from app.services.temp_service import cleanup_expired
 
+from datetime import datetime
+from app.models.alias import Alias
+
 app = FastAPI(title="RelayMailAPI")
 
 app.add_middleware(
@@ -38,6 +41,20 @@ async def cleanup_task():
         async with AsyncSessionLocal() as db:
             await cleanup_expired(db)
 
+async def expire_aliases_task():
+    while True:
+        await asyncio.sleep(300)  # каждые 5 минут
+        async with AsyncSessionLocal() as db:
+            from sqlalchemy import update
+            await db.execute(
+                update(Alias)
+                .where(Alias.expires_at <= datetime.utcnow(), Alias.is_active == True)
+                .values(is_active=False)
+            )
+            await db.commit()
+
+
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(cleanup_task())
+    asyncio.create_task(expire_aliases_task())
