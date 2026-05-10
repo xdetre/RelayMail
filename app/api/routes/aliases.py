@@ -18,7 +18,7 @@ router = APIRouter(tags=["aliases"])
 @router.post("/aliases", response_model=AliasResponse)
 async def new_alias(current_user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db), _: None = Depends(rate_limit)):
     try:
-        alias = await create_alias(db, user_id=current_user.id)
+        alias = await create_alias(db, user_id=current_user.id, is_pro=current_user.is_pro)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     return alias
