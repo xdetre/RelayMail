@@ -51,8 +51,9 @@ def resolve_alias(user_id: int, alias: str):
                     FROM aliases a
                     JOIN users u ON u.id = a.user_id
                     WHERE a.user_id = %s
-                      AND a.alias   = %s
+                      AND a.alias = %s
                       AND a.is_active = true
+                      AND (a.expires_at IS NULL OR a.expires_at > NOW())
                 """, (user_id, alias))
                 return cur.fetchone()  # (alias_id, real_email) или None
     except Exception as e:
