@@ -818,6 +818,7 @@ export default function App() {
     onLogout={handleLogout}
     userEmail={userEmail}
     onProfile={() => setShowProfile(true)}
+    isPro={isPro}
     />
   );
 
