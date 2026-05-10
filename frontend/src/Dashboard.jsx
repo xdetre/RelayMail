@@ -235,6 +235,10 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [showCustomModal, setShowCustomModal] = useState(false);
+  const [customName, setCustomName] = useState("");
+  const [customLoading, setCustomLoading] = useState(false);
+  const [customError, setCustomError] = useState("");
   const [error, setError] = useState("");
   const [toast, setToast] = useState({ show: false, message: "" });
   const [selectedAlias, setSelectedAlias] = useState(null);
@@ -297,6 +301,29 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
       showToast("Alias created");
     } catch (e) { setError(e.message); }
     finally { setCreating(false); }
+  };
+
+  const createCustomAlias = async () => {
+    if (!customName.trim()) return;
+    setCustomLoading(true);
+    setCustomError("");
+    try {
+      const res = await fetch(`${API_URL}/aliases/custom`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ name: customName.trim().toLowerCase() }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Failed");
+      setAliases(prev => [data, ...prev]);
+      setShowCustomModal(false);
+      setCustomName("");
+      showToast("Custom alias created!");
+    } catch (e) {
+      setCustomError(e.message);
+    } finally {
+      setCustomLoading(false);
+    }
   };
 
   const toggleAlias = async (id, state) => {
@@ -369,10 +396,18 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
             <div className="aliases-panel-header">
               <div className="panel-top">
                 <span className="panel-title">Your aliases</span>
-                <button className="btn-primary" onClick={createAlias} disabled={creating}>
-                  {creating ? <span className="spinner" /> : "+"} {creating ? "..." : "New alias"}
-                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  {isPro && (
+                    <button className="btn-primary" style={{ background: "transparent", border: `1px solid ${colors.blue}`, color: colors.blue }} onClick={() => setShowCustomModal(true)}>
+                      ✦ Custom
+                    </button>
+                  )}
+                  <button className="btn-primary" onClick={createAlias} disabled={creating}>
+                    {creating ? <span className="spinner" /> : "+"} {creating ? "..." : "New alias"}
+                  </button>
+                </div>
               </div>
+
               <div className="stats-row">
                 <div className="stat-card"><div className="stat-label">Total</div><div className="stat-value blue">{aliases.length}</div></div>
                 <div className="stat-card"><div className="stat-label">Active</div><div className="stat-value green">{activeCount}</div></div>
@@ -521,6 +556,48 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
           </div>
         </div>
       </div>
+      {showCustomModal && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+          zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24
+        }}>
+          <div style={{
+            background: colors.surface, border: `1px solid ${colors.border}`,
+            borderRadius: 14, padding: 28, width: "100%", maxWidth: 400
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>Custom alias</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: colors.muted, marginBottom: 20 }}>
+              Choose a name: <span style={{ color: colors.blue }}>{customName || "name"}@relaymails.dev</span>
+            </div>
+            {customError && (
+              <div style={{ padding: "10px 14px", background: "rgba(248,113,113,0.08)", border: "1px solid rgba(248,113,113,0.2)", borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: colors.error, marginBottom: 14 }}>
+                {customError}
+              </div>
+            )}
+            <input
+              value={customName}
+              onChange={e => setCustomName(e.target.value)}
+              placeholder="e.g. amazon"
+              onKeyDown={e => e.key === "Enter" && createCustomAlias()}
+              style={{
+                width: "100%", padding: "11px 14px", background: colors.surface2,
+                border: `1px solid ${colors.border}`, borderRadius: 8,
+                fontFamily: "'JetBrains Mono', monospace", fontSize: 13,
+                color: colors.text, outline: "none", marginBottom: 16
+              }}
+            />
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button className="btn-ghost" onClick={() => { setShowCustomModal(false); setCustomName(""); setCustomError(""); }}>
+                Cancel
+              </button>
+              <button className="btn-primary" onClick={createCustomAlias} disabled={customLoading || !customName.trim()}>
+                {customLoading ? <span className="spinner" /> : null}
+                {customLoading ? "Creating..." : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={`toast${toast.show ? " show" : ""}`}>✓ {toast.message}</div>
     </>
   );
