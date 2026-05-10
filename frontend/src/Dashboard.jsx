@@ -340,7 +340,20 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
           </div>
           <div className="nav-right">
             {userEmail && <span className="nav-email">{userEmail}</span>}
-            {!isPro && (
+            {isPro ? (
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace",
+                fontSize: 11,
+                padding: "6px 12px",
+                borderRadius: 7,
+                background: "rgba(59,130,246,0.15)",
+                color: colors.blue,
+                border: "1px solid rgba(59,130,246,0.3)",
+                fontWeight: 600
+              }}>
+                ✦ PRO
+              </span>
+            ) : (
               <button className="btn-ghost" style={{ color: colors.blue, borderColor: colors.blue }} onClick={onProfile}>
                 ✦ Upgrade
               </button>
@@ -396,6 +409,23 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
                       <span className={`badge ${alias.is_active ? "active" : "inactive"}`}>
                         <span className="badge-dot" />{alias.is_active ? "Active" : "Off"}
                       </span>
+                        {alias.expires_at && (
+                          <div style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 10,
+                            color: colors.muted,
+                            marginTop: 3
+                          }}>
+                            {(() => {
+                              const diff = new Date(alias.expires_at + (alias.expires_at.endsWith("Z") ? "" : "Z")) - new Date();
+                              if (diff <= 0) return "Expired";
+                              const days = Math.floor(diff / 86400000);
+                              if (days > 0) return `Expires in ${days}d`;
+                              const hours = Math.floor(diff / 3600000);
+                              return `Expires in ${hours}h`;
+                            })()}
+                          </div>
+                        )}
                     </div>
                     <div className="alias-item-actions" onClick={e => e.stopPropagation()}>
                       <button className="btn-icon" onClick={() => { navigator.clipboard.writeText(email); showToast("Copied!"); }}>⎘</button>
