@@ -20,6 +20,8 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    email: str
+    is_pro: bool = False
 
     class Config:
         from_attributes = True

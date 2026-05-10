@@ -1,4 +1,6 @@
 from pydantic import BaseModel, computed_field
+from typing import Optional
+from datetime import datetime
 
 class AliasResponse(BaseModel):
     id: int
@@ -6,6 +8,7 @@ class AliasResponse(BaseModel):
     user_id: int
     is_active: bool
     is_custom: bool = False
+    expires_at: Optional[datetime] = None
 
     @computed_field
     @property
