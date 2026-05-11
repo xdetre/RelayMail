@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     CRYPTOCLOUD_API_KEY: str = ""
     CRYPTOCLOUD_SHOP_ID: str = ""
 
+    YOOKASSA_SHOP_ID: str = ""
+    YOOKASSA_SECRET_KEY: str = ""
+
     class Config:
         env_file = ".env"
 
