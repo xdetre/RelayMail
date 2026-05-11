@@ -47,6 +47,13 @@ export default function Terms() {
 
         <h2>9. Contact</h2>
         <p>For questions about these terms, contact us at <a href="mailto:support@relaymails.dev">support@relaymails.dev</a>.</p>
+
+        <h2>10. Реквизиты</h2>
+        <p>
+          Самозанятый Бакриев Артур Тимурович<br />
+          ИНН: 057304905976<br />
+          Email: <a href="mailto:support@relaymails.dev">support@relaymails.dev</a>
+        </p>
       </div>
     </>
   );
