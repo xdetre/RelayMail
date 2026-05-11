@@ -298,6 +298,68 @@ const css = `
   }
   .feature-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: ${colors.blue}; flex-shrink: 0; }
 
+  /* ── Pricing ── */
+  .pricing-section {
+    margin-top: 48px; margin-bottom: 40px;
+    text-align: center;
+  }
+  .pricing-title {
+    font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;
+  }
+  .pricing-subtitle {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: ${colors.muted}; margin-bottom: 32px;
+  }
+  .pricing-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  }
+  .pricing-card {
+    background: ${colors.surface}; border: 1px solid ${colors.border};
+    border-radius: 14px; padding: 24px; text-align: left;
+    position: relative; transition: border-color 0.2s;
+  }
+  .pricing-card.pro {
+    border-color: ${colors.blue};
+    background: rgba(59,130,246,0.04);
+  }
+  .pricing-card-badge {
+    position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
+    background: ${colors.blue}; color: #fff; font-family: 'Syne', sans-serif;
+    font-size: 10px; font-weight: 700; padding: 3px 12px; border-radius: 20px;
+    white-space: nowrap;
+  }
+  .pricing-plan { font-size: 13px; font-weight: 700; color: ${colors.muted}; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
+  .pricing-price { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .pricing-price span { font-size: 14px; font-weight: 400; color: ${colors.muted}; }
+  .pricing-desc { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.muted}; margin-bottom: 20px; }
+  .pricing-features { list-style: none; margin-bottom: 24px; }
+  .pricing-features li {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: ${colors.muted};
+    padding: 5px 0; display: flex; align-items: center; gap: 8px;
+    border-bottom: 1px solid ${colors.border};
+  }
+  .pricing-features li:last-child { border-bottom: none; }
+  .pricing-features li.yes { color: ${colors.text}; }
+  .pricing-features li .check { color: ${colors.green}; flex-shrink: 0; }
+  .pricing-features li .cross { color: ${colors.muted}; flex-shrink: 0; }
+  .pricing-btn {
+    width: 100%; padding: 11px; border-radius: 8px;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .pricing-btn-ghost {
+    background: none; border: 1px solid ${colors.border}; color: ${colors.text};
+  }
+  .pricing-btn-ghost:hover { border-color: ${colors.muted2}; }
+  .pricing-btn-primary {
+    background: ${colors.blue}; border: none; color: #fff;
+  }
+  .pricing-btn-primary:hover { background: ${colors.blueDim}; box-shadow: 0 4px 16px rgba(59,130,246,0.3); }
+
+  @media (max-width: 600px) {
+    .pricing-grid { grid-template-columns: 1fr; }
+  }
+
   /* ── Toast ── */
   .toast {
     position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(8px);
@@ -668,6 +730,51 @@ export default function TempMail() {
             </div>
           ))}
         </div>
+
+        {/* Pricing */}
+        <div className="pricing-section">
+          <h2 className="pricing-title">Simple pricing</h2>
+          <p className="pricing-subtitle">Start free, upgrade when you need more.</p>
+          <div className="pricing-grid">
+            {/* Free */}
+            <div className="pricing-card">
+              <div className="pricing-plan">Free</div>
+              <div className="pricing-price">$0 <span>/month</span></div>
+              <div className="pricing-desc">For occasional use</div>
+              <ul className="pricing-features">
+                <li className="yes"><span className="check">✓</span> 5 aliases</li>
+                <li className="yes"><span className="check">✓</span> 15 days expiry</li>
+                <li className="yes"><span className="check">✓</span> Instant forwarding</li>
+                <li><span className="cross">✗</span> Custom aliases</li>
+                <li><span className="cross">✗</span> Unlimited duration</li>
+                <li><span className="cross">✗</span> Reply via alias</li>
+              </ul>
+              <button className="pricing-btn pricing-btn-ghost" onClick={() => navigate("/app")}>
+                Get started free
+              </button>
+            </div>
+
+            {/* Pro */}
+            <div className="pricing-card pro">
+              <div className="pricing-card-badge">✦ Most popular</div>
+              <div className="pricing-plan">Pro</div>
+              <div className="pricing-price">$1 <span>/month</span></div>
+              <div className="pricing-desc">For privacy-conscious users</div>
+              <ul className="pricing-features">
+                <li className="yes"><span className="check">✓</span> Unlimited aliases</li>
+                <li className="yes"><span className="check">✓</span> Never expire</li>
+                <li className="yes"><span className="check">✓</span> Instant forwarding</li>
+                <li className="yes"><span className="check">✓</span> Custom aliases</li>
+                <li className="yes"><span className="check">✓</span> Unlimited duration</li>
+                <li className="yes"><span className="check">✓</span> Reply via alias <span style={{fontSize:9,color:colors.muted}}>(soon)</span></li>
+              </ul>
+              <button className="pricing-btn pricing-btn-primary" onClick={() => navigate("/app")}>
+                Get Pro →
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <div className={`toast${toast.show ? " show" : ""}`}>✓ {toast.msg}</div>
