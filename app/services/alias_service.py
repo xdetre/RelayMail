@@ -26,7 +26,7 @@ async def create_alias(db: AsyncSession, user_id: int, is_pro: bool = False):
         raise ValueError(f"Alias limit reached ({settings.MAX_ALIASES_PER_USER} max)")
 
     # Бесплатные алиасы живут 30 дней
-    expires_at = None if is_pro else datetime.utcnow() + timedelta(days=10)
+    expires_at = None if is_pro else datetime.utcnow() + timedelta(days=15)
 
     MAX_RETRIES = 5
     for _ in range(MAX_RETRIES):
