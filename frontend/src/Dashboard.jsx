@@ -251,6 +251,25 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
   const isMobile = useIsMobile();
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
+
+  const handleUpgrade = () => setShowPaymentModal(true);
+
+  const handleCryptoPayment = async () => {
+    setPaymentLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/payments/create`, { method: "POST", headers });
+      const data = await res.json();
+      if (data.pay_url) window.open(data.pay_url, "_blank");
+    } catch {
+      showToast("Payment error");
+    } finally {
+      setPaymentLoading(false);
+      setShowPaymentModal(false);
+    }
+  };
+
   const showToast = (msg) => {
     setToast({ show: true, message: msg });
     setTimeout(() => setToast({ show: false, message: "" }), 2000);
@@ -381,7 +400,7 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
                 ✦ PRO
               </span>
             ) : (
-              <button className="btn-ghost" style={{ color: colors.blue, borderColor: colors.blue }} onClick={onProfile}>
+              <button className="btn-ghost" style={{ color: colors.blue, borderColor: colors.blue }} onClick={handleUpgrade}>
                 ✦ Upgrade
               </button>
             )}
@@ -556,6 +575,69 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
           </div>
         </div>
       </div>
+
+      {showPaymentModal && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
+          zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24
+        }}>
+          <div style={{
+            background: colors.surface, border: `1px solid ${colors.border}`,
+            borderRadius: 14, padding: 28, width: "100%", maxWidth: 380
+          }}>
+            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>Upgrade to Pro</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: colors.muted, marginBottom: 24 }}>
+              $1/month · Custom aliases · No expiry · Unlimited
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 16 }}>
+              <button
+                onClick={handleCryptoPayment}
+                disabled={paymentLoading}
+                style={{
+                  padding: "13px 16px", background: colors.surface2,
+                  border: `1px solid ${colors.border}`, borderRadius: 10,
+                  color: colors.text, cursor: "pointer", textAlign: "left",
+                  fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 600,
+                  transition: "border-color 0.2s"
+                }}
+                onMouseEnter={e => e.target.style.borderColor = colors.blue}
+                onMouseLeave={e => e.target.style.borderColor = colors.border}
+              >
+                ₿ Pay with crypto
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: colors.muted, marginTop: 3 }}>
+                  USDT, BTC, ETH and more
+                </div>
+              </button>
+              <button
+                onClick={async () => {
+                  const res = await fetch(`${API_URL}/payments/create-card`, { method: "POST", headers });
+                  const data = await res.json();
+                  if (data.pay_url) window.open(data.pay_url, "_blank");
+                  setShowPaymentModal(false);
+                }}
+                style={{
+                  padding: "13px 16px", background: colors.surface2,
+                  border: `1px solid ${colors.border}`, borderRadius: 10,
+                  color: colors.text, cursor: "pointer", textAlign: "left",
+                  fontFamily: "'Syne', sans-serif", fontSize: 13, fontWeight: 600,
+                  transition: "border-color 0.2s"
+                }}
+                onMouseEnter={e => e.target.style.borderColor = colors.blue}
+                onMouseLeave={e => e.target.style.borderColor = colors.border}
+              >
+                💳 Pay with card
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: colors.muted, marginTop: 3 }}>
+                  Russian cards via ЮКасса
+                </div>
+              </button>
+            </div>
+            <button className="btn-ghost" style={{ width: "100%" }} onClick={() => setShowPaymentModal(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {showCustomModal && (
         <div style={{
           position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
