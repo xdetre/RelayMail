@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
 
@@ -22,6 +25,7 @@ class UserResponse(UserBase):
     id: int
     email: str
     is_pro: bool = False
+    pro_until: Optional[datetime] = None
 
     class Config:
         from_attributes = True
