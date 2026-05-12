@@ -9,6 +9,7 @@ from app.api.routes.payments import router as payments_router
 
 import asyncio
 from app.db.session import AsyncSessionLocal
+from app.models.user import User
 from app.services.temp_service import cleanup_expired
 
 from datetime import datetime
@@ -53,8 +54,21 @@ async def expire_aliases_task():
             )
             await db.commit()
 
+async def check_pro_expiry_task():
+    while True:
+        await asyncio.sleep(3600)  # каждый час
+        async with AsyncSessionLocal() as db:
+            from sqlalchemy import update
+            await db.execute(
+                update(User)
+                .where(User.pro_until <= datetime.utcnow(), User.is_pro == True)
+                .values(is_pro=False)
+            )
+            await db.commit()
+
 
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(cleanup_task())
     asyncio.create_task(expire_aliases_task())
+    asyncio.create_task(check_pro_expiry_task())
