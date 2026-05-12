@@ -231,7 +231,7 @@ function StatsView({ aliasId, headers }) {
 }
 
 // ── Main ─────────────────────────────────────────────────────
-export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro }) {
+export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpgrade, isPro }) {
   const [aliases, setAliases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -254,7 +254,7 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, isPro
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
-  const handleUpgrade = () => setShowPaymentModal(true);
+  const handleUpgrade = () => onUpgrade();
 
   const handleCryptoPayment = async () => {
     setPaymentLoading(true);

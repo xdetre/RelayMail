@@ -128,7 +128,7 @@ function PasswordField({ label, value, onChange, placeholder }) {
 }
 
 
-export default function Profile({ token, userEmail, isPro, onLogout, onBack }) {
+export default function Profile({ token, userEmail, isPro, onLogout, onBack, onUpgrade }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -242,9 +242,8 @@ export default function Profile({ token, userEmail, isPro, onLogout, onBack }) {
               <div className="section-desc">
                 Get custom aliases like amazon@relaymails.dev and more features for $1/month.
               </div>
-              <button className="btn-primary" onClick={handleUpgrade} disabled={upgradeLoading}>
-                {upgradeLoading && <span className="spinner" />}
-                {upgradeLoading ? "Loading..." : "Upgrade for $1/month →"}
+              <button className="btn-primary" onClick={onUpgrade}>
+                Upgrade for $1/month →
               </button>
             </div>
           )}

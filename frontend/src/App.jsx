@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 const SITE_KEY = import.meta.env.VITE_DATA_SITEKEY
 import Dashboard from "./Dashboard";
 import Profile from "./Profile";
+import Upgrade from "./Upgrade";
 
 // const API_URL = "https://relaymails.dev/api";
 const API_URL = import.meta.env.VITE_API_URL;
@@ -769,6 +770,7 @@ export default function App() {
   const [token, setToken] = useState(() => localStorage.getItem("token") || "");
   const [userEmail, setUserEmail] = useState("");
   const [showProfile, setShowProfile] = useState(false);
+  const [showUpgrade, setShowUpgrade] = useState(false);
   const [isPro, setIsPro] = useState(false);
 
   useEffect(() => {
@@ -802,6 +804,16 @@ export default function App() {
     setShowProfile(false);
   };
 
+  if (token && showUpgrade) return (
+    <Upgrade
+      token={token}
+      userEmail={userEmail}
+      isPro={isPro}
+      onBack={() => setShowUpgrade(false)}
+      onSuccess={() => { setIsPro(true); setShowUpgrade(false); }}
+    />
+  );
+
   if (token && showProfile) return (
     <Profile
     token={token}
@@ -809,6 +821,7 @@ export default function App() {
     isPro={isPro}
     onLogout={handleLogout}
     onBack={() => setShowProfile(false)}
+    onUpgrade={() => setShowUpgrade(true)}
     />
   );
 
@@ -818,6 +831,7 @@ export default function App() {
     onLogout={handleLogout}
     userEmail={userEmail}
     onProfile={() => setShowProfile(true)}
+    onUpgrade={() => setShowUpgrade(true)}
     isPro={isPro}
     />
   );
