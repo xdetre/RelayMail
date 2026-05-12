@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 import httpx
+from datetime import datetime, timedelta
 
 from app.db.session import get_db
 from app.api.deps import get_current_user
@@ -13,7 +14,7 @@ from yookassa import Configuration, Payment as YooPayment
 
 router = APIRouter(tags=["payments"])
 
-
+#CryptoCloud
 @router.post("/payments/create")
 async def create_invoice(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
     if user.is_pro:
@@ -61,11 +62,13 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
     if user:
         user.is_pro = True
+        user.pro_until = datetime.utcnow() + timedelta(days=30)
         await db.commit()
 
     return {"ok": True}
 
 
+#yookassa
 @router.post("/payments/create-card")
 async def create_card_invoice(
     request: Request,
@@ -112,6 +115,7 @@ async def card_payment_webhook(request: Request, db: AsyncSession = Depends(get_
     user = result.scalar_one_or_none()
     if user:
         user.is_pro = True
+        user.pro_until = datetime.utcnow() + timedelta(days=30)
         await db.commit()
 
     return {"ok": True}
