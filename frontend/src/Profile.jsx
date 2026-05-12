@@ -128,7 +128,7 @@ function PasswordField({ label, value, onChange, placeholder }) {
 }
 
 
-export default function Profile({ token, userEmail, isPro, onLogout, onBack, onUpgrade }) {
+export default function Profile({ token, userEmail, isPro, proUntil, onLogout, onBack, onUpgrade }) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -141,6 +141,19 @@ export default function Profile({ token, userEmail, isPro, onLogout, onBack, onU
 
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   const initials = userEmail ? userEmail[0].toUpperCase() : "?";
+
+  const [cancelLoading, setCancelLoading] = useState(false);
+
+  const handleCancelPro = async () => {
+    setCancelLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/users/cancel-pro`, { method: "POST", headers });
+      if (!res.ok) throw new Error();
+      window.location.reload();
+    } catch {} finally {
+      setCancelLoading(false);
+    }
+  };
 
 
   const handleChangePassword = async () => {
@@ -236,7 +249,25 @@ export default function Profile({ token, userEmail, isPro, onLogout, onBack, onU
           </div>
 
           {/* Pro plan */}
-          {!isPro && (
+          {isPro ? (
+            <div className="profile-section">
+              <div className="section-title" style={{ color: colors.green }}>✓ Pro plan active</div>
+              <div className="section-desc">
+                You have access to all Pro features including custom aliases.
+                {proUntil && (
+                  <span style={{ display: "block", marginTop: 6 }}>
+                    Active until: <strong style={{ color: colors.text }}>
+                      {new Date(proUntil).toLocaleDateString()}
+                    </strong>
+                  </span>
+                )}
+              </div>
+              <button className="btn-danger" onClick={handleCancelPro} disabled={cancelLoading}>
+                {cancelLoading && <span className="spinner" />}
+                {cancelLoading ? "Cancelling..." : "Cancel subscription"}
+              </button>
+            </div>
+          ) : (
             <div className="profile-section">
               <div className="section-title">Upgrade to Pro</div>
               <div className="section-desc">
@@ -245,13 +276,6 @@ export default function Profile({ token, userEmail, isPro, onLogout, onBack, onU
               <button className="btn-primary" onClick={onUpgrade}>
                 Upgrade for $1/month →
               </button>
-            </div>
-          )}
-
-          {isPro && (
-            <div className="profile-section">
-              <div className="section-title" style={{ color: colors.green }}>✓ Pro plan active</div>
-              <div className="section-desc">You have access to all Pro features including custom aliases.</div>
             </div>
           )}
 

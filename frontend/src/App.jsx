@@ -772,6 +772,7 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isPro, setIsPro] = useState(false);
+  const [proUntil, setProUntil] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -792,6 +793,7 @@ export default function App() {
         .then(data => {
           setUserEmail(data.email || "");
           setIsPro(data.is_pro || false);
+          setProUntil(data.pro_until || null);
         })
         .catch(() => {});
     }
@@ -809,6 +811,7 @@ export default function App() {
       token={token}
       userEmail={userEmail}
       isPro={isPro}
+      proUntil={proUntil}
       onBack={() => setShowUpgrade(false)}
       onSuccess={() => { setIsPro(true); setShowUpgrade(false); }}
     />
@@ -819,6 +822,7 @@ export default function App() {
     token={token}
     userEmail={userEmail}
     isPro={isPro}
+    proUntil={proUntil}
     onLogout={handleLogout}
     onBack={() => setShowProfile(false)}
     onUpgrade={() => setShowUpgrade(true)}
