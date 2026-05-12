@@ -96,3 +96,11 @@ async def change_password(
     user.password_hash = hash_password(data.new_password)
     await db.commit()
     return {"message": "Password changed"}
+
+
+@router.post("/users/cancel-pro")
+async def cancel_pro(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    user.is_pro = False
+    user.pro_until = None
+    await db.commit()
+    return {"message": "Pro cancelled"}
