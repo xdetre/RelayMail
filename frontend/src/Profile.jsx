@@ -248,6 +248,23 @@ export default function Profile({ token, userEmail, isPro, proUntil, onLogout, o
             </button>
           </div>
 
+          {/* Export data */}
+          <div className="profile-section">
+            <div className="section-title">Export my data</div>
+            <div className="section-desc">
+              Download all your aliases and email metadata as JSON. Required by GDPR.
+            </div>
+            <button className="btn-primary" onClick={async () => {
+              const res = await fetch(`${API_URL}/users/export`, { headers });
+              const blob = await res.blob();
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url; a.download = "relaymails_export.json"; a.click();
+            }}>
+              Download my data →
+            </button>
+          </div>
+
           {/* Pro plan */}
           {isPro ? (
             <div className="profile-section">

@@ -5,6 +5,8 @@ from sqlalchemy import select
 from app.api.deps import rate_limit, get_current_user
 from app.core.security import create_access_token, verify_password, hash_password
 from app.db.session import get_db
+from app.models.alias import Alias
+from app.models.email import Email
 from app.schemas.user import UserCreate, UserResponse, TokenResponse, UserLogin, VerifyRequest, ResendRequest, ChangePasswordRequest
 from app.services.user_service import create_user, verify_turnstile
 from app.services.auth_service import authenticate_user
@@ -104,3 +106,36 @@ async def cancel_pro(user: User = Depends(get_current_user), db: AsyncSession = 
     user.pro_until = None
     await db.commit()
     return {"message": "Pro cancelled"}
+
+#export all data
+@router.get("/users/export")
+async def export_data(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    import json
+
+    # Алиасы
+    aliases_result = await db.execute(select(Alias).where(Alias.user_id == user.id))
+    aliases = aliases_result.scalars().all()
+
+    # Письма
+    data = {
+        "user": {"email": user.email, "created_at": str(user.created_at)},
+        "aliases": [],
+    }
+
+    for alias in aliases:
+        emails_result = await db.execute(
+            select(Email).where(Email.alias_id == alias.id).order_by(Email.received_at.desc())
+        )
+        emails = emails_result.scalars().all()
+        data["aliases"].append({
+            "alias": alias.email if alias.is_custom else f"u{alias.user_id}.{alias.alias}@relaymails.dev",
+            "is_active": alias.is_active,
+            "created_at": str(alias.created_at),
+            "expires_at": str(alias.expires_at) if alias.expires_at else None,
+            "emails": [{"sender": e.sender, "subject": e.subject, "received_at": str(e.received_at)} for e in emails]
+        })
+
+    return JSONResponse(content=data, headers={
+        "Content-Disposition": "attachment; filename=relaymails_export.json"
+    })
