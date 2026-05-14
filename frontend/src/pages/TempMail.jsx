@@ -766,7 +766,7 @@ export default function TempMail() {
                 <li className="yes"><span className="check">✓</span> Instant forwarding</li>
                 <li className="yes"><span className="check">✓</span> Custom aliases</li>
                 <li className="yes"><span className="check">✓</span> Unlimited duration</li>
-                <li className="yes"><span className="check">✓</span> Reply via alias <span style={{fontSize:9,color:colors.muted}}>(soon)</span></li>
+                <li className="yes"><span className="check">✓</span> Reply via alias <span style={{fontSize:9,color:colors.muted}}></span></li>
               </ul>
               <button className="pricing-btn pricing-btn-primary" onClick={() => navigate("/app")}>
                 Get Pro →
