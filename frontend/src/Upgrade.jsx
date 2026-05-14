@@ -210,7 +210,7 @@ export default function Upgrade({ token, userEmail, isPro, onBack, onSuccess }) 
                 <li className="yes"><span className="check">✓</span> Unlimited duration</li>
                 <li className="yes">
                   <span className="check">✓</span> Reply via alias
-                  <span style={{ fontSize: 9, color: colors.muted, marginLeft: 6 }}>(soon)</span>
+                  <span style={{ fontSize: 9, color: colors.muted, marginLeft: 6 }}></span>
                 </li>
               </ul>
               {isPro ? (
