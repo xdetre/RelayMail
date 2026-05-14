@@ -14,6 +14,7 @@ class Alias(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_custom: Mapped[bool] = mapped_column(Boolean, default=False)
+    label: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
