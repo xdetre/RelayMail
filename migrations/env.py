@@ -10,6 +10,7 @@ from app.models.alias import Alias
 from app.models.email import Email
 from app.models.temp_alias import TempAlias
 from app.models.temp_email import TempEmail
+from app.models.reply_token import ReplyToken
 
 config = context.config
 

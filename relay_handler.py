@@ -5,6 +5,7 @@ import psycopg
 import smtplib
 from email import message_from_string
 from email.utils import parseaddr
+import secrets
 
 # --- Конфиг ---
 DB_URL = "postgresql://relay:relay@localhost:5432/relaymail"
@@ -74,7 +75,7 @@ def save_email(alias_id: int, sender: str, subject: str, body: str = ""):
         log.error(f"save_email DB error: {e}")
 
 
-def forward_email(real_email: str, raw_data: str, original_recipient: str):
+def forward_email(real_email: str, raw_data: str, original_recipient: str, alias_id: int = None):
     try:
         msg = message_from_string(raw_data)
         original_from = msg.get("From", "")
@@ -90,8 +91,12 @@ def forward_email(real_email: str, raw_data: str, original_recipient: str):
         while "DKIM-Signature" in msg:
             del msg["DKIM-Signature"]
 
-        if "Reply-To" not in msg:
-            msg["Reply-To"] = original_from
+        token = create_reply_token(alias_id, original_addr)
+        if token:
+            msg["Reply-To"] = f"reply.{token}@{DOMAIN}"
+        else:
+            if "Reply-To" not in msg:
+                msg["Reply-To"] = original_from
 
         if "To" in msg:
             msg.replace_header("To", real_email)
@@ -144,6 +149,8 @@ def main():
         log.error("Empty stdin")
         sys.exit(1)
 
+    local = recipient.split("@")[0]
+
     # Проверяем temp алиас ПЕРЕД обычным parse_alias
     temp_alias = parse_temp_alias(recipient)
     if temp_alias:
@@ -152,8 +159,43 @@ def main():
         save_temp_email_sync(temp_alias, sender, subject, body)
         sys.exit(0)
 
+    # Проверяем reply алиас
+    if local.startswith("reply."):
+        token = local[6:]  # убираем "reply."
+        result = resolve_reply_token(token)
+        if not result:
+            log.warning(f"Reply token not found: {token}")
+            sys.exit(0)
+
+        alias_id, original_sender, alias_name, user_id, user_email = result
+        alias_email = f"u{user_id}.{alias_name}@{DOMAIN}"
+
+        log.info(f"Reply: forwarding to {original_sender} from {alias_email}")
+
+        # Пересылаем ответ оригинальному отправителю от имени алиаса
+        msg = message_from_string(raw_data)
+
+        if "From" in msg:
+            msg.replace_header("From", alias_email)
+        else:
+            msg["From"] = alias_email
+
+        while "DKIM-Signature" in msg:
+            del msg["DKIM-Signature"]
+
+        if "To" in msg:
+            msg.replace_header("To", original_sender)
+        else:
+            msg["To"] = original_sender
+
+        with smtplib.SMTP("localhost", 25) as smtp:
+            smtp.sendmail(alias_email, original_sender, msg.as_bytes())
+
+        log.info(f"Reply sent to {original_sender}")
+        sys.exit(0)
+
+
     # Проверяем кастомный алиас
-    local = recipient.split("@")[0]
     if "." not in local or not local.split(".")[0].startswith("u"):
         result = resolve_custom_alias(local)
         if result:
@@ -182,7 +224,7 @@ def main():
     sender, subject = parse_headers(raw_data)
     body = extract_body(raw_data)
     save_email(alias_id, sender, subject, body)
-    forward_email(real_email, raw_data, recipient)
+    forward_email(real_email, raw_data, recipient, alias_id=alias_id)
 
 
 def save_temp_email_sync(alias: str, sender: str, subject: str, body: str):
@@ -238,6 +280,42 @@ def resolve_custom_alias(alias: str):
     except Exception as e:
         log.error(f"resolve_custom_alias DB error: {e}")
         return None
+
+
+#для ответа с temp почты
+def create_reply_token(alias_id: int, original_sender: str) -> str:
+    token = secrets.token_urlsafe(16)
+    try:
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    INSERT INTO reply_tokens (token, alias_id, original_sender, created_at)
+                    VALUES (%s, %s, %s, NOW())
+                """, (token, alias_id, original_sender))
+            conn.commit()
+    except Exception as e:
+        log.error(f"create_reply_token error: {e}")
+        return None
+    return token
+
+
+def resolve_reply_token(token: str):
+    """reply.{token} → (alias_id, original_sender)"""
+    try:
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    SELECT rt.alias_id, rt.original_sender, a.alias, a.user_id, u.email
+                    FROM reply_tokens rt
+                    JOIN aliases a ON a.id = rt.alias_id
+                    JOIN users u ON u.id = a.user_id
+                    WHERE rt.token = %s
+                """, (token,))
+                return cur.fetchone()
+    except Exception as e:
+        log.error(f"resolve_reply_token error: {e}")
+        return None
+
 
 if __name__ == "__main__":
     main()
