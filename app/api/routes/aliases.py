@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.services.alias_service import create_alias, get_user_aliases
-from app.schemas.alias import AliasResponse, CustomAliasRequest
+from app.services.alias_service import create_alias, get_user_aliases, update_alias_label
+from app.schemas.alias import AliasResponse, CustomAliasRequest, AliasLabelUpdate
 from app.api.deps import get_current_user, rate_limit_soft
 from app.models.user import User
 
@@ -70,4 +70,17 @@ async def new_custom_alias(
         alias = await create_custom_alias(db, user_id=current_user.id, name=body.name)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    return alias
+
+
+@router.patch("/aliases/{alias_id}/label")
+async def update_alias_label_endpoint(
+    alias_id: int,
+    body: AliasLabelUpdate,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    alias = await update_alias_label(db, alias_id, current_user.id, body.label)
+    if not alias:
+        raise HTTPException(status_code=404, detail="Alias not found")
     return alias
