@@ -284,7 +284,7 @@ def resolve_custom_alias(alias: str):
 
 #для ответа с temp почты
 def create_reply_token(alias_id: int, original_sender: str) -> str:
-    token = secrets.token_urlsafe(16)
+    token = secrets.token_urlsafe(16).lower()
     try:
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
