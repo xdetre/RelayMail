@@ -481,8 +481,33 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
                           </div>
                         )}
                     </div>
+
+{/*                      */}{/* Label */}
+{/*                     {alias.label && ( */}
+{/*                       <span style={{ */}
+{/*                         fontFamily: "'JetBrains Mono', monospace", */}
+{/*                         fontSize: 10, padding: "2px 8px", */}
+{/*                         borderRadius: 10, background: "rgba(59,130,246,0.1)", */}
+{/*                         color: colors.blue, marginTop: 4, display: "inline-block" */}
+{/*                       }}> */}
+{/*                         {alias.label} */}
+{/*                       </span> */}
+{/*                     )} */}
+
                     <div className="alias-item-actions" onClick={e => e.stopPropagation()}>
                       <button className="btn-icon" onClick={() => { navigator.clipboard.writeText(email); showToast("Copied!"); }}>⎘</button>
+{/*                       <button className="btn-icon" title="Edit label" onClick={e => { */}
+{/*                         e.stopPropagation(); */}
+{/*                         const newLabel = prompt("Enter label (leave empty to remove):", alias.label || ""); */}
+{/*                         if (newLabel === null) return; */}
+{/*                         fetch(`${API_URL}/aliases/${alias.id}/label`, { */}
+{/*                           method: "PATCH", */}
+{/*                           headers, */}
+{/*                           body: JSON.stringify({ label: newLabel || null }) */}
+{/*                         }).then(() => { */}
+{/*                           setAliases(prev => prev.map(a => a.id === alias.id ? { ...a, label: newLabel || null } : a)); */}
+{/*                         }); */}
+{/*                       }}>🏷</button> */}
                       <button className="btn-icon" onClick={() => toggleAlias(alias.id, alias.is_active)}>{alias.is_active ? "⏸" : "▶"}</button>
                       <button className="btn-icon danger" onClick={() => deleteAlias(alias.id)}>✕</button>
                     </div>
