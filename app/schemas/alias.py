@@ -8,6 +8,7 @@ class AliasResponse(BaseModel):
     user_id: int
     is_active: bool
     is_custom: bool = False
+    label: Optional[str] = None
     expires_at: Optional[datetime] = None
 
     @computed_field
@@ -23,3 +24,6 @@ class AliasResponse(BaseModel):
 
 class CustomAliasRequest(BaseModel):
     name: str
+
+class AliasLabelUpdate(BaseModel):
+    label: str | None = None
