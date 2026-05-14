@@ -114,3 +114,12 @@ async def create_custom_alias(db: AsyncSession, user_id: int, name: str):
         await db.rollback()
         raise ValueError("Alias already taken")
 
+# for tags in aliases
+async def update_alias_label(db: AsyncSession, alias_id: int, user_id: int, label: str | None):
+    result = await db.execute(select(Alias).where(Alias.id == alias_id, Alias.user_id == user_id))
+    alias = result.scalar_one_or_none()
+    if not alias:
+        return None
+    alias.label = label
+    await db.commit()
+    return alias
