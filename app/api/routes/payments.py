@@ -9,6 +9,8 @@ from app.api.deps import get_current_user
 from app.models.user import User
 from app.core.config import settings
 
+from app.services.payment_service import get_usd_rub_rate
+
 import uuid
 from yookassa import Configuration, Payment as YooPayment
 
@@ -68,6 +70,7 @@ async def payment_webhook(request: Request, db: AsyncSession = Depends(get_db)):
     return {"ok": True}
 
 
+
 #yookassa
 @router.post("/payments/create-card")
 async def create_card_invoice(
@@ -81,9 +84,12 @@ async def create_card_invoice(
     Configuration.account_id = settings.YOOKASSA_SHOP_ID
     Configuration.secret_key = settings.YOOKASSA_SECRET_KEY
 
+    rate = await get_usd_rub_rate()
+    amount_rub = round(1.00 * rate, 2)
+
     payment = YooPayment.create({
         "amount": {
-            "value": "99.00",  # рублей
+            "value": str(amount_rub),
             "currency": "RUB"
         },
         "confirmation": {
