@@ -10,6 +10,13 @@ from sqlalchemy import select, func
 from app.core.config import settings
 from app.models.alias import Alias
 
+FORBIDDEN_NAMES = {
+    "admin", "support", "noreply", "no-reply", "abuse", "postmaster",
+    "hostmaster", "webmaster", "root", "mail", "email", "info",
+    "help", "contact", "security", "billing", "sales", "spam",
+    "fuck", "shit", "ass", "dick", "porn", "sex", "nude",
+}
+
 
 def generate_random_alias(length: int = 8):
     alphabet = string.ascii_lowercase + string.digits
@@ -92,6 +99,8 @@ async def create_custom_alias(db: AsyncSession, user_id: int, name: str):
         raise ValueError("Name can only contain lowercase letters, numbers, dots, hyphens and underscores")
     if len(name) < 2 or len(name) > 30:
         raise ValueError("Name must be between 2 and 30 characters")
+    if name.lower() in FORBIDDEN_NAMES:
+        raise ValueError(f"This alias name is not allowed")
 
     # Проверяем лимит
     result = await db.execute(select(func.count()).where(Alias.user_id == user_id))
