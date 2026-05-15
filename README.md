@@ -10,15 +10,21 @@ Anonymous users get 2 temporary aliases without registration.
 
 ## Features
 
-- **Disposable aliases** — generate unlimited aliases (up to 8 per account)
+- **Disposable aliases** — up to 5 aliases for free (30-day expiry), unlimited for Pro
 - **Instant forwarding** — incoming mail forwarded to real inbox via Postfix
-- **Temp mail** — 2 temporary aliases without signup, auto-expire in 30/60 min
+- **Temp mail** — 2 temporary aliases without signup, sequential expiry (30/60 min)
+- **Reply via alias** — reply to emails without revealing your real address
+- **Custom aliases** — Pro users can create `amazon@relaymails.dev` style aliases
+- **Inline inbox** — view emails directly in dashboard without leaving the page
+- **Alias stats** — see top senders and activity charts per alias
+- **Alias labels** — tag aliases (e.g. "Nike", "Banks")
 - **Google OAuth** — sign in with Google
 - **Email verification** — 4-digit code on registration via Resend
 - **Cloudflare Turnstile** — captcha protection on registration
-- **DKIM + SPF + PTR** — proper email authentication
-- **SRS** — sender rewriting for DMARC-strict senders
+- **DKIM + SPF + PTR + SRS** — proper email authentication and DMARC compliance
 - **Browser extension** — one-click alias creation on any website
+- **Pro plan** — $1/month via YooKassa (cards) or CryptoCloud (crypto)
+- **GDPR** — data export and account deletion
 
 ---
 
@@ -29,6 +35,7 @@ Anonymous users get 2 temporary aliases without registration.
 - PostgreSQL + SQLAlchemy (async)
 - Alembic migrations
 - Postfix (SMTP) + custom pipe handler (`relay_handler.py`)
+- postsrsd (SRS rewriting)
 - Docker / Docker Compose
 
 **Frontend**
@@ -43,6 +50,10 @@ Anonymous users get 2 temporary aliases without registration.
 - DNS: Cloudflare
 - Email: Resend (transactional), OpenDKIM
 
+**Payments**
+- YooKassa (Russian cards, SBP)
+- CryptoCloud (USDT, BTC, ETH)
+
 ---
 
 ## Project Structure
@@ -50,16 +61,18 @@ Anonymous users get 2 temporary aliases without registration.
 ```
 RelayMail/
 ├── app/
-│   ├── api/routes/      — REST API (users, aliases, emails, auth, temp)
+│   ├── api/routes/      — REST API (users, aliases, emails, auth, temp, payments)
 │   ├── core/            — config, security, rate limits
 │   ├── db/              — database session
-│   ├── models/          — SQLAlchemy models
+│   ├── models/          — SQLAlchemy models (User, Alias, Email, TempAlias, ReplyToken...)
 │   ├── schemas/         — Pydantic schemas
 │   └── services/        — business logic
 ├── frontend/
 │   └── src/
 │       ├── App.jsx       — auth pages (login, register, verify)
-│       ├── Dashboard.jsx — alias management
+│       ├── Dashboard.jsx — alias management with split-view inbox
+│       ├── Profile.jsx   — profile, password change, subscription management
+│       ├── Upgrade.jsx   — pricing and payment page
 │       └── pages/        — TempMail, Terms, Privacy
 ├── migrations/           — Alembic migrations
 ├── tests/                — pytest tests
@@ -97,7 +110,23 @@ FRONTEND_URL=http://localhost:5173
 TEMP_ALIAS_LIMIT=2
 TEMP_ALIAS_TTL_MINUTES=30
 MAX_ALIASES_PER_USER=8
+YOOKASSA_SHOP_ID=...
+YOOKASSA_SECRET_KEY=...
+CRYPTOCLOUD_API_KEY=...
+CRYPTOCLOUD_SHOP_ID=...
 ```
+
+---
+
+## Plans
+
+| Feature | Free    | Pro ($1/mo) |
+|---|---------|---|
+| Aliases | 5       | Unlimited |
+| Expiry | 15 days | Never |
+| Custom aliases | ✗       | ✓ |
+| Reply via alias | ✓       | ✓ |
+| Inbox in dashboard | ✓       | ✓ |
 
 ---
 
