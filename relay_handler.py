@@ -43,12 +43,11 @@ def parse_temp_alias(recipient: str):
 
 
 def resolve_alias(user_id: int, alias: str):
-    """Возвращает (alias_id, real_email) или None"""
     try:
         with psycopg.connect(DB_URL) as conn:
             with conn.cursor() as cur:
                 cur.execute("""
-                    SELECT a.id, u.email
+                    SELECT a.id, u.email, a.created_for
                     FROM aliases a
                     JOIN users u ON u.id = a.user_id
                     WHERE a.user_id = %s
@@ -56,10 +55,22 @@ def resolve_alias(user_id: int, alias: str):
                       AND a.is_active = true
                       AND (a.expires_at IS NULL OR a.expires_at > NOW())
                 """, (user_id, alias))
-                return cur.fetchone()  # (alias_id, real_email) или None
+                return cur.fetchone()
     except Exception as e:
         log.error(f"resolve_alias DB error: {e}")
         return None
+
+#функция для флага утечки
+def mark_leak_detected(alias_id: int):
+    try:
+        with psycopg.connect(DB_URL) as conn:
+            with conn.cursor() as cur:
+                cur.execute("""
+                    UPDATE aliases SET leak_detected = true WHERE id = %s
+                """, (alias_id,))
+            conn.commit()
+    except Exception as e:
+        log.error(f"mark_leak_detected error: {e}")
 
 
 def save_email(alias_id: int, sender: str, subject: str, body: str = ""):
@@ -225,6 +236,16 @@ def main():
     body = extract_body(raw_data)
     save_email(alias_id, sender, subject, body)
     forward_email(real_email, raw_data, recipient, alias_id=alias_id)
+
+    alias_id, real_email, created_for = result
+
+    # Детект утечки
+    if created_for:
+        sender_domain = sender.split("@")[-1].lower() if "@" in sender else ""
+        expected = created_for.lower().replace("www.", "")
+        if expected and expected not in sender_domain and sender_domain not in expected:
+            log.warning(f"Leak detected: alias created for '{created_for}' but got mail from '{sender_domain}'")
+            mark_leak_detected(alias_id)
 
 
 def save_temp_email_sync(alias: str, sender: str, subject: str, body: str):

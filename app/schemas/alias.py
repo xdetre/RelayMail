@@ -9,6 +9,7 @@ class AliasResponse(BaseModel):
     is_active: bool
     is_custom: bool = False
     label: Optional[str] = None
+    leak_detected: bool = False
     expires_at: Optional[datetime] = None
 
     @computed_field
@@ -21,6 +22,8 @@ class AliasResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class CreateAliasRequest(BaseModel):
+    created_for: Optional[str] = None
 
 class CustomAliasRequest(BaseModel):
     name: str

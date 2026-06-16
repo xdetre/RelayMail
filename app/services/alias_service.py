@@ -23,7 +23,7 @@ def generate_random_alias(length: int = 8):
     return "".join(random.choice(alphabet) for _ in range(length))
 
 
-async def create_alias(db: AsyncSession, user_id: int, is_pro: bool = False):
+async def create_alias(db: AsyncSession, user_id: int, is_pro: bool = False, created_for: str = None):
     # Проверяем лимит пользователя
     result = await db.execute(
         select(func.count()).where(Alias.user_id == user_id)
@@ -38,7 +38,7 @@ async def create_alias(db: AsyncSession, user_id: int, is_pro: bool = False):
     MAX_RETRIES = 5
     for _ in range(MAX_RETRIES):
         alias_value = generate_random_alias()
-        alias = Alias(alias=alias_value, user_id=user_id, expires_at=expires_at)
+        alias = Alias(alias=alias_value, user_id=user_id, expires_at=expires_at, created_for=created_for)
         db.add(alias)
 
         try:

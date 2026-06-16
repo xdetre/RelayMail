@@ -254,6 +254,9 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
 
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [createFor, setCreateFor] = useState("");
+
   const handleUpgrade = () => onUpgrade();
 
   const handleCryptoPayment = async () => {
@@ -313,10 +316,16 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
   const createAlias = async () => {
     setCreating(true);
     try {
-      const res = await fetch(`${API_URL}/aliases`, { method: "POST", headers });
+      const res = await fetch(`${API_URL}/aliases`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ created_for: createFor || null }),
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail || "Failed");
       setAliases(prev => [data, ...prev]);
+      setShowCreateModal(false);
+      setCreateFor("");
       showToast("Alias created");
     } catch (e) { setError(e.message); }
     finally { setCreating(false); }
@@ -421,7 +430,7 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
                       ✦ Custom
                     </button>
                   )}
-                  <button className="btn-primary" onClick={createAlias} disabled={creating}>
+                  <button className="btn-primary" onClick={isPro ? () => setShowCreateModal(true) : createAlias} disabled={creating}>
                     {creating ? <span className="spinner" /> : "+"} {creating ? "..." : "New alias"}
                   </button>
                 </div>
@@ -478,6 +487,17 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
                               const hours = Math.floor(diff / 3600000);
                               return `Expires in ${hours}h`;
                             })()}
+                          </div>
+                        )}
+                        {alias.leak_detected && (
+                          <div style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 10, padding: "2px 8px",
+                            borderRadius: 10, background: "rgba(248,113,113,0.1)",
+                            color: colors.error, marginTop: 4, display: "inline-block",
+                            border: "1px solid rgba(248,113,113,0.2)"
+                          }}>
+                            ⚠ Possible leak
                           </div>
                         )}
                     </div>
@@ -662,6 +682,33 @@ export default function Dashboard({ token, onLogout, userEmail, onProfile, onUpg
           </div>
         </div>
       )}
+
+
+      {showCreateModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+          <div style={{ background: colors.surface, border: `1px solid ${colors.border}`, borderRadius: 14, padding: 28, width: "100%", maxWidth: 400 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>New alias</div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: colors.muted, marginBottom: 16 }}>
+              Optionally specify which service this alias is for. Helps detect leaks.
+            </div>
+            <input
+              value={createFor}
+              onChange={e => setCreateFor(e.target.value)}
+              placeholder="e.g. Nike, Amazon, GitHub..."
+              onKeyDown={e => e.key === "Enter" && createAlias()}
+              style={{ width: "100%", padding: "11px 14px", background: colors.surface2, border: `1px solid ${colors.border}`, borderRadius: 8, fontFamily: "'JetBrains Mono', monospace", fontSize: 13, color: colors.text, outline: "none", marginBottom: 16 }}
+            />
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button className="btn-ghost" onClick={() => { setShowCreateModal(false); setCreateFor(""); }}>Cancel</button>
+              <button className="btn-primary" onClick={createAlias} disabled={creating}>
+                {creating ? <span className="spinner" /> : null}
+                {creating ? "Creating..." : "Create"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
 
       {showCustomModal && (
         <div style={{
